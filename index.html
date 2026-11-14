@@ -261,7 +261,28 @@
   @keyframes robflame{from{transform:scaleY(.7); opacity:.65;}to{transform:scaleY(1.1); opacity:1;}}
   @media (max-width:760px){ .robi{transform:translateY(-50%) scale(.82); transform-origin:center right;} .robi-bubble{max-width:190px;} }
 
-  footer{text-align:center; color:var(--dim); font-size:12px; padding:18px; border-top:1px solid var(--line);}
+ footer {
+  text-align: center;
+  color: var(--dim);
+  font-size: 12px;
+  padding: 25px 15px;
+  border-top: 1px solid var(--line);
+  background: linear-gradient(180deg, #0e1533, #070b1e);
+}
+
+.developer {
+  margin-top: 14px;
+  font-size: 13px;
+  color: #ffffff;
+}
+
+.developer strong {
+  color: var(--gold);
+  font-size: 17px;
+  letter-spacing: 2px;
+  margin-left: 5px;
+  text-shadow: 0 0 12px rgba(255, 210, 94, 0.4);
+}
 </style>
 </head>
 <body>
@@ -463,8 +484,14 @@
 
 <div class="toast" id="toast"></div>
 
-<footer>Made for junior astronauts ages 5–15 · Facts checked for the 2026 school year ·
-  Works offline · Progress saves in your browser · Developed by Darshna Malhi 🚀</footer>
+<footer>
+  Made for junior astronauts ages 5–15 · Facts checked for the 2026 school year ·
+  Works offline · Progress saves in your browser
+
+  <div class="developer">
+    Developed by <strong>DARSHNA MALHI 🚀</strong>
+  </div>
+</footer>
 
 <script>
 'use strict';
