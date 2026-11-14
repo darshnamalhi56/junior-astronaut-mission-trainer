@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -878,30 +878,31 @@ const ROBI_TIPS=[
   'Practice makes perfect: replay the Speed Round and beat your best score! ⚡'
 ];
 const ROBI_PLANET={
-  mercury:'Mercury zips around the Sun in just 88 days — the fastest planet! 🏎️',
-  venus:'Venus spins BACKWARDS! The Sun rises in the west there. 🌅',
-  earth:'Home sweet home — the only planet known to have oceans and pizza! 🍕',
-  mars:'Mars robots rove here right now — say hi to Perseverance! 🤖',
-  jupiter:"Jupiter's Great Red Spot is a storm bigger than Earth! 🌪️",
-  saturn:'Those rings are billions of icy shards — sparkle mode! 💎',
-  uranus:'Uranus rolls around the Sun on its side, like a bowling ball! 🎳',
-  neptune:"Neptune's winds scream at 2,000 km/h — the fastest in the solar system! 💨"
+  mercury:['Mercury zips around the Sun in just 88 days — the fastest planet! 🏎️','Budh sirf 88 dinon mein Suraj ka chakkar lagata hai — sab se tez planet! 🏎️'],
+  venus:['Venus spins BACKWARDS! The Sun rises in the west there. 🌅','Zuhra ULTA ghoomta hai! Wahan Suraj maghrib se nikalta hai. 🌅'],
+  earth:['Home sweet home — the only planet known to have oceans and pizza! 🍕','Ghar sweet ghar — ye akela planet hai jahan samundar aur pizza hain! 🍕'],
+  mars:['Mars robots rove here right now — say hi to Perseverance! 🤖','Mars par abhi robot ghoom rahe hain — Perseverance ko salaam bolo! 🤖'],
+  jupiter:["Jupiter's Great Red Spot is a storm bigger than Earth! 🌪️",'Mushtari ka Laal Dhaba — tufaan Earth se bhi bada! 🌪️'],
+  saturn:['Those rings are billions of icy shards — sparkle mode! 💎','Ye rings arabon barf ke tukdon ki bani hain — chamakne wali! 💎'],
+  uranus:['Uranus rolls around the Sun on its side, like a bowling ball! 🎳','Yuranus side par let kar ghoomta hai — jaise bowling ki ball! 🎳'],
+  neptune:["Neptune's winds scream at 2,000 km/h — the fastest in the solar system! 💨",'Neptun ki hawayein 2,000 km/h se chalti hain — sab se tez! 💨']
 };
 const ROBI_SCREEN={
-  home:'Pick a mission card to start training, {name}! 🚀 Tap me for a chat anytime — jokes, facts, everything! 💬',
-  solar:"Tap any planet to visit it — I'll share a secret about each one! 🪐",
-  games:'Two games to master: Quiz Captain 🧠 and the Speed Round ⚡ — 10 seconds per statement!',
-  quiz:'Read each question twice, {name}. One answer is always right! 🧠',
-  speed:'Quick! True or False — trust your gut, {name}! ⏱',
-  badges:'Every mission earns a badge. Collect all 5 to graduate! 🎖️',
-  cert:'🎉 You did it, {name}! Print your certificate and show everyone!',
-  network:'Ground station! Connect to sync your badges to the leaderboard. 🛰️'
+  home:['Pick a mission card to start training, {name}! 🚀 Tap me for a chat anytime — jokes, facts, everything! 💬','{name}, koi mission card chuno aur training shuru karo! 🚀 Kabhi bhi mujhe tap karo — jokes, facts, sab kuch! 💬'],
+  solar:["Tap any planet to visit it — I'll share a secret about each one! 🪐",'Kisi bhi planet par tap karo — main har ek ka raaz bataunga! 🪐'],
+  games:['Two games to master: Quiz Captain 🧠 and the Speed Round ⚡ — 10 seconds per statement!','Do games hain: Quiz Captain 🧠 aur Speed Round ⚡ — har sawal ke sirf 10 second!'],
+  quiz:['Read each question twice, {name}. One answer is always right! 🧠','Har sawal do baar parho, {name}. Ek jawab hamesha sahi hota hai! 🧠'],
+  speed:['Quick! True or False — trust your gut, {name}! ⏱','Jaldi! Sach ya Jhooth — apne dil ki suno, {name}! ⏱'],
+  badges:['Every mission earns a badge. Collect all 5 to graduate! 🎖️','Har mission se badge milta hai. Paanchon kamo aur graduate bano! 🎖️'],
+  cert:['🎉 You did it, {name}! Print your certificate and show everyone!','🎉 Mubarak ho, {name}! Certificate print karo aur sab ko dikhao!'],
+  network:['Ground station! Connect to sync your badges to the leaderboard. 🛰️','Ground station! Badges sync karne ke liye connect karo. 🛰️']
 };
 let robiTimer=null, robiHold=null, robiQueue=[], robiBusy=false, robiLastBody=null;
-function robiSay(text){
+function robiSay(text, ur){
   const bub=document.getElementById('robiBubble');
   if(!bub) return;
   robiQueue.push(text);
+  if(ur) robiQueue.push(ur);
   if(!robiBusy) robiNext();
 }
 function robiNext(){
@@ -932,14 +933,16 @@ function robiNext(){
 function robiScreen(id){
   let m=ROBI_SCREEN[id];
   if(!m) return;
-  if(id==='home' && !state.name) m='Enter your call sign and press LAUNCH to begin! 🚀';
-  robiSay(m.replace(/\{name\}/g, state.name||'Cadet'));
+  if(id==='home' && !state.name) m=['Enter your call sign and press LAUNCH to begin! 🚀','Apna call sign likho aur LAUNCH dabao — mission shuru! 🚀'];
+  m=Array.isArray(m)? m : [m];
+  robiSay(m[0].replace(/\{name\}/g, state.name||'Cadet'), m[1] && m[1].replace(/\{name\}/g, state.name||'Cadet'));
 }
 function robiPlanet(b){
-  if(b && ROBI_PLANET[b] && robiLastBody!==b){ robiLastBody=b; robiSay(ROBI_PLANET[b]); }
+  if(b && ROBI_PLANET[b] && robiLastBody!==b){ robiLastBody=b; robiSay(ROBI_PLANET[b][0], ROBI_PLANET[b][1]); }
 }
 function robiStart(){
-  robiSay(state.name ? 'Welcome back, '+state.name+'! Ready to train? 🚀' : "Hi! I'm ROBI 🤖 — your robot guide. Type your call sign to launch — and tap me for a chat anytime! 💬");
+  if(state.name) robiSay('Welcome back, '+state.name+'! Ready to train? 🚀','Wapas khush aamad, '+state.name+'! Training shuru karein? 🚀');
+  else robiSay("Hi! I'm ROBI 🤖 — your robot guide. Type your call sign to launch — and tap me for a chat anytime! 💬","Salaam! Main ROBI 🤖 hoon — tumhara robot dost. Apna naam likho aur mission shuru karo — aur kabhi bhi mujhse baat karo! 💬");
 }
 let voiceArmed=false;
 function robiSpeak(text){
@@ -1006,10 +1009,10 @@ function robiAnswer(raw){
     if(robiLastTopic) return "I know, RIGHT?! 🤩 Say 'more' for another fact, or try a new planet! 🪐";
     return "Beep boop! What shall we explore, "+name+"? 🚀";
   }
-  if(has('hi','hello','hey','hi robi','namaste','salam','good morning','good day')) return "Hello "+name+"! I'm ROBI 🤖 — ask me about any planet, the badges, or the games!";
+  if(has('hi','hello','hey','hi robi','namaste','salam','good morning','good day')) return "Hello "+name+"! I'm ROBI 🤖 — ask me about any planet, the badges, or the games! (Urdu: Main ROBI hoon — kisi bhi planet, badges ya games ke baare mein poocho!)";
   if(has('who made','who built','developer','created you','your maker','darshna')) return "This Mission Trainer was developed by Darshna Malhi 🚀 — she programmed me to guide junior astronauts like you!";
   const p=PLANETS.find(pl=>has(pl.id));
-  if(p){ robiLastTopic={t:'planet', id:p.id, n:1}; return p.name+' — '+p.facts[0]+' '+(ROBI_PLANET[p.id]||''); }
+  if(p){ robiLastTopic={t:'planet', id:p.id, n:1}; return p.name+' — '+p.facts[0]+' '+(ROBI_PLANET[p.id]?ROBI_PLANET[p.id][0]:''); }
   if(has('moon')) return "The Moon is Earth's rocky buddy — astronauts walked there in 1969, and their footprints will stay for millions of years! 🌙";
   if(has('sky')) return "Earth's sky is blue because air molecules scatter blue sunlight best — on Mars the sky is BUTTERSCOTCH! 🟠";
   if(has('black hole')) return "A black hole is a place where gravity is SO strong that not even light can escape! 🕳️";
@@ -1020,13 +1023,13 @@ function robiAnswer(raw){
   if(has('nasa','artemis')) return "NASA is preparing the Artemis missions to send astronauts back to the Moon — maybe you could be on a later crew! 🚀";
   if(has('rocket')) return "Rockets burn fuel super fast to escape Earth's gravity — reaching space takes only about 8.5 minutes! 🚀";
   if(has('reset','start over','delete')) return "You can reset all progress with the button at the bottom of the Badge Cabinet. Careful — badges vanish! 🧹";
-  if(has('badge')) return "There are 5 badges: Cadet (sign in), Solar Explorer (visit all 8 planets), Quiz Captain (score 10+), Speed Star (8+ in the Speed Round) and Master Astronaut (all of them)! 🎖️";
-  if(has('quiz')) return "Quiz Captain has 12 questions. Every correct answer = +1 point. Score 10 or more to earn the Quiz Captain badge! 🧠";
-  if(has('speed','timer')) return "The Speed Round gives you 10 true-or-false statements — with only 10 seconds each ⏱ Score 8+ for the Speed Star badge!";
-  if(has('certificate','graduate','graduation','diploma')) return "Earn all 5 badges to graduate as a Master Astronaut — then print your official certificate from the Badge Cabinet! 🎓";
+  if(has('badge')) return "There are 5 badges: Cadet (sign in), Solar Explorer (visit all 8 planets), Quiz Captain (score 10+), Speed Star (8+ in the Speed Round) and Master Astronaut (all of them)! 🎖️ (Urdu: Paanch badges — Cadet, Solar Explorer, Quiz Captain, Speed Star aur Master Astronaut!)";
+  if(has('quiz')) return "Quiz Captain has 12 questions. Every correct answer = +1 point. Score 10 or more to earn the Quiz Captain badge! 🧠 (Urdu: 12 sawal — 10 ya us se zyada sahi to badge tumhara!)";
+  if(has('speed','timer')) return "The Speed Round gives you 10 true-or-false statements — with only 10 seconds each ⏱ Score 8+ for the Speed Star badge! (Urdu: 10 statements, har ek par sirf 10 second — 8 sahi to Speed Star badge!)";
+  if(has('certificate','graduate','graduation','diploma')) return "Earn all 5 badges to graduate as a Master Astronaut — then print your official certificate from the Badge Cabinet! 🎓 (Urdu: Paanch badges kamo, Master Astronaut bano, phir certificate print karo!)";
   if(has('score','best')) return "Your quiz best is "+(state.quizBest<0?"not set yet":state.quizBest+"/12")+" and your speed best is "+(state.tfBest<0?"not set yet":state.tfBest+"/10")+". Keep going, "+name+"! 💪";
   if(has('rank')) return "Ranks rise with badges: Cadet → Pilot → Captain → Commander → Master Astronaut! 🎖️";
-  if(has('robi','robot','who are you')) return "I'm ROBI, your robot guide! I know 8 planets, lots of space facts, and everything about this mission trainer. 🤖";
+  if(has('robi','robot','who are you')) return "I'm ROBI, your robot guide! I know 8 planets, lots of space facts, and everything about this mission trainer. 🤖 (Urdu: Main tumhara robot dost hoon — mujhse kuch bhi poocho!)";
   if(has('sound')) return "Tap 🔊 for sound effects, or 🗣️ to switch my voice on and off! I love talking! 🤖";
   if(has('help','how to play','what do i do')) return "Here's the mission: 1) Visit all 8 planets 🪐 2) Score 10+ in the Quiz 🧠 3) Score 8+ in the Speed Round ⚡ — collect all 5 badges and graduate! 🎓";
   if(has('planet','solar system')) return "Our solar system has 8 planets — tap any of them in the Solar Explorer and I'll tell you a secret about each! 🪐";
@@ -1104,28 +1107,37 @@ function renderCert(){
 function openCert(){ certShown=true; sfx('grad'); go('cert'); if(badgesEarned()===BADGES.length) confetti(); }
 function robiComment(ok){
   const name=state.name||'Cadet';
-  const YES=['Perfect, '+name+'! 🎉','Brilliant! 🌟','You are on fire, '+name+'! 🔥','Exactly right! 🚀','Genius alert! 🧠'];
-  const NO=['Almost! Read the explanation, '+name+' 💪','No worries — even astronauts miss sometimes! 🙂','You will nail the next one! 🌟'];
+  const YES=[['Perfect, '+name+'! 🎉','Zabardast, '+name+'! 🎉'],['Brilliant! 🌟','Kya baat hai! 🌟'],['You are on fire, '+name+'! 🔥',name+', tum to aag ban gaye! 🔥'],['Exactly right! 🚀','Bilkul sahi jawab! 🚀'],['Genius alert! 🧠','Genius nikle tum! 🧠']];
+  const NO=[['Almost! Read the explanation, '+name+' 💪','Bas qareeb the! Explanation parho, '+name+' 💪'],['No worries — even astronauts miss sometimes! 🙂','Koi baat nahi — astronauts bhi galti karte hain! 🙂'],['You will nail the next one! 🌟','Agla sawal pakka hoga! 🌟']];
   const arr=ok?YES:NO;
+  const pick=arr[Math.floor(Math.random()*arr.length)];
   robiInterrupt();
-  robiSay(arr[Math.floor(Math.random()*arr.length)]);
+  robiSay(pick[0], pick[1]);
 }
 function robiFinal(kind, s, total){
   const name=state.name||'Cadet';
-  let m;
+  let m, u;
   if(kind==='quiz'){
     m= s===total? 'PERFECT SCORE?! '+name+', NASA is calling RIGHT NOW! 🌟📞'
       : s>=10? s+' out of '+total+'! Quiz Captain badge material! 🧠🎉'
       : s>=7? 'Good flying, '+name+'! Review the planets with me and fly again! 🚀'
       : 'Every astronaut starts somewhere, '+name+' — study with me and try again! 💪';
+    u= s===total? 'Poore marks?! '+name+', NASA abhi tumhe bula rahi hai! 🌟📞'
+      : s>=10? total+' mein se '+s+' sahi! Quiz Captain badge ke liye perfect! 🧠🎉'
+      : s>=7? 'Achi udaan, '+name+'! Planets dobara dekho aur phir ura lo! 🚀'
+      : 'Har astronaut kahin se shuru karta hai, '+name+' — mere saath seekho aur phir try karo! 💪';
   }else{
     m= s===total? 'FLAWLESS! The whole galaxy heard that! 🌌🔥'
       : s>=8? s+' out of '+total+'! Speed Star badge material! ⚡🎉'
       : s>=5? 'Sharp reflexes, '+name+'! One more run for the badge! 💪'
       : 'Missed a few, '+name+' — train with me and go again! 🚀';
+    u= s===total? 'Bilkul be-ayb! Poore galaxy ne ye sun liya! 🌌🔥'
+      : s>=8? total+' mein se '+s+' sahi! Speed Star badge ke liye tayyar! ⚡🎉'
+      : s>=5? 'Tez dimagh, '+name+'! Ek aur round aur badge tumhara! 💪'
+      : 'Kuch reh gaye, '+name+' — mere saath training karo aur phir try karo! 🚀';
   }
   robiInterrupt();
-  robiSay(m);
+  robiSay(m, u);
 }
 function rocketFly(){
   const old=document.querySelector('.fly-rocket'); if(old) old.remove();
