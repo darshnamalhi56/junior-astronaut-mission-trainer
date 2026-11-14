@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Junior Astronaut Mission Trainer | Free Space Learning Game for Kids</title>
-<meta name="description" content="Explore the solar system, play space quizzes, earn astronaut badges and learn astronomy with Junior Astronaut Mission Trainer, an educational space game for kids.">
+<title>Junior Astronaut Mission Trainer</title>
 <style>
   :root{
     --bg:#070b1e; --panel:#0e1533; --panel2:#131c44; --line:#22306b;
@@ -20,6 +19,20 @@
   }
   #stars{position:fixed; inset:0; z-index:0; pointer-events:none;}
   .star{position:absolute; background:#fff; border-radius:50%;}
+  .star.tw{animation:tw 2.6s ease-in-out infinite;}
+  .shoot{position:absolute; height:2px; border-radius:2px; opacity:0;
+    background:linear-gradient(90deg, rgba(255,255,255,0), #fff 55%, #fff);
+    transform:rotate(28deg); animation:shoot 7s linear infinite;}
+  @keyframes shoot{0%{opacity:0; transform:translate3d(110vw,-6vh,0) rotate(28deg);}4%{opacity:1;}
+    14%{opacity:0;}100%{opacity:0; transform:translate3d(24vw,38vh,0) rotate(28deg);}}
+  #confettiBox{position:fixed; inset:0; z-index:70; pointer-events:none; overflow:hidden;}
+  .cf{position:absolute; top:-16px; animation:cfall linear forwards;}
+  @keyframes cfall{to{transform:translateY(112vh) rotate(720deg);}}
+  .fly-rocket{position:fixed; left:-60px; bottom:16vh; z-index:50; font-size:34px; pointer-events:none;
+    filter:drop-shadow(0 0 10px rgba(127,212,255,.65)); animation:flyby 2.2s cubic-bezier(.45,.05,.55,.95) forwards;}
+  @keyframes flyby{0%{transform:translate(0,42vh) rotate(-8deg);}100%{transform:translate(132vw,-36vh) rotate(14deg);}}
+  .certstickers{display:flex; flex-wrap:wrap; gap:14px; justify-content:center; margin:14px 0 4px;}
+  .sticker{font-size:30px; display:inline-block; filter:drop-shadow(0 3px 6px rgba(0,0,0,.35));}
   .tw{animation:tw 3.2s infinite;}
   @keyframes tw{50%{opacity:.15;}}
   main,header.topbar,footer{position:relative; z-index:1;}
@@ -163,11 +176,97 @@
     padding:12px 20px; border-radius:12px; z-index:60; transition:transform .3s; font-size:14px;}
   .toast.show{transform:translateX(-50%) translateY(0);}
 
+  /* v2.0: astronaut, timer, certificate */
+  .astro-wrap{display:flex; align-items:center; justify-content:center; font-size:52px; margin-bottom:4px;}
+  .astro{display:inline-block; animation:floaty 3.6s ease-in-out infinite; filter:drop-shadow(0 6px 14px rgba(0,0,0,.45));}
+  @keyframes floaty{0%,100%{transform:translateY(-7px) rotate(-7deg);}50%{transform:translateY(9px) rotate(8deg);}}
+  .detail .ball{animation:arrive .55s cubic-bezier(.2,.8,.3,1.25);}
+  @keyframes arrive{0%{transform:scale(.2) translateY(-46px); opacity:0;}100%{transform:scale(1) translateY(0); opacity:1;}}
+  .timerrow{display:flex; align-items:center; gap:10px; margin:8px 0 4px;}
+  .timerbar{flex:1; height:10px; border-radius:999px; background:var(--panel2); border:1px solid var(--line); overflow:hidden;}
+  .timerfill{height:100%; width:100%; background:linear-gradient(90deg,var(--green),var(--gold),var(--red)); border-radius:999px;}
+  .timertxt{font-weight:900; color:var(--gold); min-width:56px; text-align:right;}
+  .certcard{background:linear-gradient(180deg,#17205a,#0e1533); border:3px solid var(--gold); border-radius:18px;
+    padding:34px 26px; text-align:center; box-shadow:0 0 40px rgba(255,210,94,.18);}
+  .certcard p{color:var(--text); font-size:15px;}
+  .certkicker{color:var(--gold); font-weight:900; letter-spacing:3px; font-size:13px;}
+  .certname{font-size:34px; font-weight:900; margin:12px 0 6px;
+    text-decoration:underline; text-decoration-color:var(--gold); text-underline-offset:8px;}
+  .certseal{font-size:60px; margin:10px 0 4px;}
+  .certbadges{display:flex; justify-content:center; gap:12px; font-size:26px; margin:12px 0 4px;}
+  .certmeta{color:var(--dim); font-size:13px; margin-top:8px;}
+  @media print{ body *{visibility:hidden;} .certcard,.certcard *{visibility:visible;}
+    .certcard{position:absolute; left:0; top:0; width:100%; box-shadow:none;} footer{display:none;} }
+
+  /* v2.1: ROBI the robot guide */
+  .robi{position:fixed; right:10px; top:50%; transform:translateY(-50%); z-index:30; display:flex; flex-direction:row-reverse; align-items:center; gap:12px; user-select:none; pointer-events:none;}
+  .robi-bot{pointer-events:auto; cursor:pointer; position:relative; width:88px; flex:none; animation:robifloat 3.4s ease-in-out infinite; filter:drop-shadow(0 10px 22px rgba(0,0,0,.45)); transition:filter .2s;}
+  .robi-bot:hover{filter:drop-shadow(0 12px 26px rgba(0,0,0,.5)) brightness(1.12);}
+  .robi-inner{transition:transform .2s;}
+  .robi-bot.talk .robi-inner{animation:robtalk .45s ease-in-out 2;}
+  .robi-ant{width:3px; height:12px; background:#8894c4; margin:0 auto; position:relative;}
+  .robi-dot{position:absolute; top:-9px; left:50%; transform:translateX(-50%); width:10px; height:10px;
+    border-radius:50%; background:var(--red); animation:robping 1.6s infinite;}
+  .robi-head{position:relative; width:62px; height:46px; background:linear-gradient(180deg,#eef2ff,#b9c4e8);
+    border-radius:13px; margin:0 auto; border:2px solid #8894c4;}
+  .robi-head::before,.robi-head::after{content:''; position:absolute; top:14px; width:6px; height:14px;
+    background:#8894c4; border-radius:3px;}
+  .robi-head::before{left:-8px;}
+  .robi-head::after{right:-8px;}
+  .robi-eyes{display:flex; gap:12px; justify-content:center; padding-top:12px;}
+  .robi-eye{width:10px; height:11px; background:radial-gradient(circle at 35% 35%,#9fdcff,#17205a 72%); border-radius:50%; box-shadow:0 0 7px rgba(127,212,255,.85); animation:roblnk 4.2s infinite;}
+  .robi-eye.r{animation-delay:.15s;}
+  .robi-mouth{display:flex; gap:2px; justify-content:center; align-items:flex-end; height:8px; margin:4px auto 0;}
+  .robi-mouth i{width:3px; height:4px; background:#17205a; border-radius:2px; transition:height .2s;}
+  .robi-bot.talk .robi-mouth i{animation:robmouth .45s ease-in-out infinite alternate;}
+  .robi-bot.talk .robi-mouth i:nth-child(2){animation-delay:.12s;}
+  .robi-bot.talk .robi-mouth i:nth-child(3){animation-delay:.24s;}
+  .robi-body{width:72px; height:38px; background:linear-gradient(180deg,#44549c,#2a3670); border-radius:12px;
+    margin:3px auto 0; border:2px solid #8894c4; display:flex; align-items:center; justify-content:center;}
+  .robi-chest{width:22px; height:12px; border-radius:4px; background:var(--gold); box-shadow:0 0 10px var(--gold); animation:robpls 2s infinite;}
+  .robi-bubble{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:10px 12px;
+    font-size:13px; line-height:1.45; color:var(--text); max-width:250px; opacity:0;
+    transform:translateY(10px) scale(.92); transition:opacity .25s ease, transform .25s ease;
+    pointer-events:none; box-shadow:0 10px 24px rgba(0,0,0,.35); position:relative; margin-bottom:6px;}
+  .robi-bubble.show{opacity:1; transform:none;}
+  .robi-col{display:none; pointer-events:auto; flex-direction:column; gap:6px; align-items:stretch; max-width:272px;}
+  .robi.open .robi-col{display:flex;}
+  .robi-chatdot{position:absolute; top:-6px; right:4px; background:var(--red); color:#fff; font-size:12px;
+    font-weight:900; border-radius:999px; padding:4px 9px; box-shadow:0 2px 10px rgba(255,90,90,.55);
+    animation:robpls 1.6s infinite; pointer-events:none;}
+  .robi.open .robi-chatdot{display:none;}
+  .robi-ask{display:flex; gap:6px;}
+  .robi-input{flex:1; min-width:0; background:var(--panel2); border:1px solid var(--line); border-radius:10px;
+    padding:8px 10px; font:inherit; font-size:13px; color:var(--text); outline:none;}
+  .robi-input:focus{border-color:var(--gold);}
+  .robi-send{border-radius:10px; padding:8px 12px; font-size:13px; flex:none;}
+  .robi-chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .robi-chip{background:var(--panel2); border:1px solid var(--line); border-radius:999px; padding:4px 10px;
+    font-size:11.5px; color:var(--dim); cursor:pointer; transition:all .15s; font-family:inherit;}
+  .robi-chip:hover{color:var(--text); border-color:var(--gold);}
+  @media (max-width:760px){ .robi-col{max-width:196px;} }
+  .robi-bubble::after{content:''; position:absolute; right:-10px; bottom:14px; border:5px solid transparent; border-left-color:var(--line);}
+  .robiCursor{display:inline-block; color:var(--gold); animation:robcur .8s steps(1) infinite;}
+  @keyframes robifloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+  @keyframes robtalk{0%,100%{transform:rotate(0);}25%{transform:rotate(-6deg);}75%{transform:rotate(6deg);}}
+  @keyframes roblnk{0%,91%,100%{transform:scaleY(1);}95%{transform:scaleY(.1);}}
+  @keyframes robping{0%{box-shadow:0 0 0 0 rgba(255,90,90,.55);}100%{box-shadow:0 0 0 9px rgba(255,90,90,0);}}
+  @keyframes robpls{0%,100%{opacity:1;}50%{opacity:.45;}}
+  @keyframes robcur{50%{opacity:0;}}
+  @keyframes robmouth{from{height:3px;}to{height:8px;}}
+  .robi-flame{width:16px; height:18px; margin:2px auto 0;
+    background:linear-gradient(180deg,#ffb347,#ff5a5a 60%,rgba(255,90,90,0));
+    clip-path:polygon(18% 0,82% 0,50% 100%); opacity:.9;
+    animation:robflame .28s ease-in-out infinite alternate; filter:blur(.4px);}
+  @keyframes robflame{from{transform:scaleY(.7); opacity:.65;}to{transform:scaleY(1.1); opacity:1;}}
+  @media (max-width:760px){ .robi{transform:translateY(-50%) scale(.82); transform-origin:center right;} .robi-bubble{max-width:190px;} }
+
   footer{text-align:center; color:var(--dim); font-size:12px; padding:18px; border-top:1px solid var(--line);}
 </style>
 </head>
 <body>
 <div id="stars"></div>
+<div id="confettiBox"></div>
 
 <header class="topbar">
   <button class="brand" id="brandBtn"><span class="brand-bar"></span>
@@ -175,6 +274,7 @@
   <div class="topright">
     <span class="chip" id="rankChip">🎖️ Rank: Cadet</span>
     <span class="chip" id="badgeChip">🏅 Badges 0/5</span>
+    <button class="iconbtn" id="voiceBtn" title="Turn ROBI's voice on or off">🗣️</button>
     <button class="iconbtn" id="soundBtn" title="Turn sound on or off">🔊</button>
   </div>
 </header>
@@ -183,8 +283,8 @@
   <!-- HOME -->
   <section id="screen-home" class="screen active">
     <div class="panel hero">
-      <h1>Junior Astronaut Mission Trainer</h1>
-      <p class="sub">Junior Astronaut Training Program · Ages 8–10 · Ready to earn your wings?</p>
+      <h1>Mission Control</h1>
+      <p class="sub">Junior Astronaut Training Program · Ages 5–15 · Ready to earn your wings?</p>
       <div id="signin" style="margin-top:16px;">
         <label for="nameInput">Step 1 — Enter your astronaut call sign</label>
         <div class="signinrow">
@@ -259,7 +359,7 @@
       <div class="panel mission">
         <div class="mi">⚡</div>
         <h3>True / False Speed Round</h3>
-        <p>10 quick space statements. Shout "True!" or "False!" — how many can you nail?</p>
+        <p>10 quick space statements. Shout "True!" or "False!" — how many can you nail? You get ⏱ 10 seconds for each!</p>
         <span class="stat" id="statSpeed">Best: —</span><br>
         <button class="btn btn-red" data-act="start-speed">Start round</button>
       </div>
@@ -293,8 +393,36 @@
         <b style="color:var(--gold)">Master Astronaut</b>!</p>
     </div>
     <div class="grid" id="badgeGrid"></div>
+    <div class="panel hidden" id="certPanel" style="text-align:center; margin-top:16px;">
+      <button class="btn btn-red" data-go="cert">🎓 View my graduation certificate</button>
+    </div>
     <div class="panel" style="text-align:center; margin-top:16px;">
       <button class="btn ghost small" id="resetBtn">Reset all progress</button>
+    </div>
+  </section>
+
+  <!-- CERTIFICATE -->
+  <section id="screen-cert" class="screen">
+    <div class="panel">
+      <button class="btn ghost small" data-go="home">⬅ Mission Control</button>
+      <h2>🎓 Graduation Certificate</h2>
+      <p class="sub">Earn all 5 badges to graduate as a Master Astronaut — then print your official certificate!</p>
+    </div>
+    <div class="certcard" id="certCard">
+      <p class="certkicker">★ JUNIOR ASTRONAUT MISSION TRAINER ★</p>
+      <div class="certseal">🎖️</div>
+      <p class="certmeta" style="letter-spacing:2px; font-weight:800;">OFFICIAL GRADUATION CERTIFICATE</p>
+      <p class="certname" id="certName">—</p>
+      <p id="certBody">has completed the full training program and earned all five mission badges,
+        rising to the rank of <b style="color:var(--gold)">Master Astronaut</b>.</p>
+      <div class="certbadges" id="certBadges"></div>
+      <div class="certstickers" id="certStickers"></div>
+      <p class="certmeta" id="certDate"></p>
+      <p class="certmeta">Developed by Darshna Malhi</p>
+    </div>
+    <div class="panel" style="text-align:center; margin-top:16px;">
+      <button class="btn btn-red" id="printCertBtn">Print / save as PDF 🖨️</button>
+      <button class="btn ghost small" data-go="badges" style="margin-left:8px;">Back to badges</button>
     </div>
   </section>
 </main>
@@ -309,20 +437,40 @@
   </div>
 </div>
 
+<!-- ROBI the robot guide (v2.1) -->
+<div class="robi" id="robi" title="ROBI — your robot guide">
+  <div class="robi-bot" id="robiBot">
+    <div class="robi-chatdot">💬</div>
+    <div class="robi-inner">
+      <div class="robi-ant"><div class="robi-dot"></div></div>
+      <div class="robi-head">
+        <div class="robi-eyes"><div class="robi-eye"></div><div class="robi-eye r"></div></div>
+        <div class="robi-mouth"><i></i><i></i><i></i></div>
+      </div>
+      <div class="robi-body"><div class="robi-chest"></div></div>
+      <div class="robi-flame"></div>
+    </div>
+  </div>
+  <div class="robi-col">
+    <div class="robi-bubble" id="robiBubble" aria-live="polite"></div>
+    <div class="robi-ask">
+      <input id="robiInput" class="robi-input" maxlength="80" placeholder="Ask ROBI anything… 🤖" autocomplete="off">
+      <button class="btn btn-red robi-send" id="robiSend">Ask ➤</button>
+    </div>
+    <div class="robi-chips" id="robiChips"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
-<footer>
-  Made for junior astronauts ages 8–10 · Facts checked for the 2026 school year ·
-  Static page — works offline · Progress saves in your browser
-  <br><br>
-  <strong>Developed by Darshna Malhi ❤️</strong>
-</footer>
+<footer>Made for junior astronauts ages 5–15 · Facts checked for the 2026 school year ·
+  Works offline · Progress saves in your browser · Developed by Darshna Malhi 🚀</footer>
 
 <script>
 'use strict';
 /* ---------- Data ---------- */
 const KEY = 'jat_v1';
-const state = { name:'', visited:[], quizBest:-1, tfBest:-1, badges:{}, sound:true };
+const state = { name:'', visited:[], quizBest:-1, tfBest:-1, badges:{}, sound:true, voice:true };
 
 const RANKS = ['Cadet','Space Scout','Pilot','Mission Specialist','Commander','Master Astronaut'];
 const BADGES = [
@@ -487,6 +635,8 @@ function sfx(n){
   if(n==='wrong'){ beep(180,.25,'square'); }
   if(n==='badge'){ [523,659,784,1047].forEach((f,i)=>beep(f,.16,'triangle',i*.09)); }
   if(n==='log'){ beep(740,.08); beep(980,.1,'sine',.08); }
+  if(n==='visit'){ beep(220,.2,'sawtooth'); beep(440,.14,'sine',.16); beep(660,.12,'sine',.3); beep(990,.22,'triangle',.44); }
+  if(n==='grad'){ [523,659,784,1047,1319].forEach((f,i)=>beep(f,.2,'triangle',i*.12)); }
 }
 
 /* ---------- UI helpers ---------- */
@@ -501,6 +651,8 @@ function go(id){
   if(id==='solar') renderSolar();
   if(id==='games') renderGames();
   if(id==='badges') renderBadges();
+  if(id==='cert') renderCert();
+  robiScreen(id);
   if(id==='quiz') renderQuiz();
   if(id==='speed') renderSpeed();
   window.scrollTo(0,0);
@@ -548,7 +700,7 @@ function renderSolar(){
   if(isNewVisit){
     state.visited.push(first.id); save();
     toast('📡 Mission logged: '+first.name+'!');
-    sfx('log');
+    sfx('visit');
   }
   document.getElementById('solarStat').textContent='(Logged: '+countVisited()+'/8)';
   const rail=document.getElementById('rail');
@@ -563,7 +715,7 @@ function renderSolar(){
   const p=PLANETS.find(x=>x.id===currentBody);
   const visited=!p.star&&state.visited.indexOf(p.id)>=0;
   document.getElementById('detail').innerHTML=
-    '<div><div class="ball" style="background:'+p.grad+'">'+
+    '<div><div class="astro-wrap"><span class="astro">🧑‍🚀</span></div><div class="ball" style="background:'+p.grad+'">'+
       (p.ring?'<div class="ring"></div>':'')+(p.spot?'<div class="spot"></div>':'')+
     '</div></div>'+
     '<div><p class="tag">'+p.tag+'</p><h3 style="font-size:24px;">'+p.name+(p.star?' (a star!)':'')+'</h3>'+
@@ -600,6 +752,7 @@ function renderQuiz(){
       '<button class="btn btn-red" data-act="quiz-retry">Play again 🔁</button> '+
       '<button class="btn ghost" data-go="games">Back to games</button>';
     checkBadges(); renderGames();
+    robiFinal('quiz', s, L.length);
     return;
   }
   const q=L[quizState.i];
@@ -612,12 +765,13 @@ function renderQuiz(){
 
 /* ---------- True/False ---------- */
 let tfState=null;
-function startSpeed(){ tfState={ list:shuffle(TF), i:0, score:0, answered:false }; go('speed'); }
+function startSpeed(){ stopTimer(); tfState={ list:shuffle(TF), i:0, score:0, answered:false }; go('speed'); }
 function renderSpeed(){
   const el=document.getElementById('tfBody');
   if(!tfState){ el.innerHTML=''; return; }
   const L=tfState.list;
   if(tfState.i>=L.length){
+    stopTimer();
     const s=tfState.score;
     if(s>state.tfBest){ state.tfBest=s; save(); }
     let msg;
@@ -630,17 +784,21 @@ function renderSpeed(){
       '<button class="btn btn-red" data-act="speed-retry">Play again 🔁</button> '+
       '<button class="btn ghost" data-go="games">Back to games</button>';
     checkBadges(); renderGames();
+    robiFinal('speed', s, L.length);
     return;
   }
   const item=L[tfState.i];
   tfState.answered=false;
   el.innerHTML='<div class="qmeta">Statement '+(tfState.i+1)+' of '+L.length+' · Score: '+tfState.score+'</div>'+
+    '<div class="timerrow"><div class="timerbar"><div class="timerfill" id="timerFill"></div></div>'+
+    '<span class="timertxt" id="timerTxt">⏱ 10s</span></div>'+
     '<div class="qtext">“'+item.s+'”</div>'+
     '<div class="tfrow">'+
       '<button class="tfbtn" data-tf="true">👍 TRUE!</button>'+
       '<button class="tfbtn" data-tf="false">👎 FALSE!</button>'+
     '</div>'+
     '<div class="feedback hidden" id="tfFeedback"></div>';
+  startTimer(item);
 }
 
 /* ---------- Games hub ---------- */
@@ -658,6 +816,8 @@ function renderBadges(){
       '<div class="bic">'+b.icon+'</div><h3>'+b.name+'</h3><p>'+b.how+'</p>'+
       '<span class="st '+(earned?'on':'off')+'">'+(earned?'EARNED ✓':'LOCKED 🔒')+'</span></div>';
   }).join('');
+  const certPanel=document.getElementById('certPanel');
+  if(certPanel){ certPanel.classList.toggle('hidden', !state.badges.commander); }
 }
 
 function checkBadges(){
@@ -675,6 +835,7 @@ function checkBadges(){
   if(newly.length){
     save(); badgeQueue=newly.slice(); showNextBadge(); sfx('badge');
     renderChrome();
+    if(newly.some(b=>b.id==='commander')) confetti();
   }
 }
 let badgeQueue=[];
@@ -692,13 +853,302 @@ function showNextBadge(){
 function initStars(){
   const box=document.getElementById('stars');
   let html='';
-  for(let i=0;i<140;i++){
+  for(let i=0;i<170;i++){
     const x=Math.random()*100, y=Math.random()*100, s=Math.random()<.85?1:2;
     const o=(.3+Math.random()*.7).toFixed(2);
-    html+='<span class="star'+(Math.random()<.3?' tw':'')+'" style="left:'+x+'%;top:'+y+'%;width:'+s+
-      'px;height:'+s+'px;opacity:'+o+';animation-delay:'+(Math.random()*3).toFixed(2)+'s;"></span>';
+    const c=Math.random()<.14?(Math.random()<.5?'#ffd166':'#7fd4ff'):'#fff';
+    html+='<span class="star'+(Math.random()<.45?' tw':'')+'" style="left:'+x+'%;top:'+y+'%;width:'+s+
+      'px;height:'+s+'px;opacity:'+o+';background:'+c+';animation-delay:'+(Math.random()*3).toFixed(2)+'s;"></span>';
   }
+  html+='<span class="shoot" style="top:6%;width:150px;animation-delay:2.5s;animation-duration:6.5s;"></span>';
+  html+='<span class="shoot" style="top:34%;width:110px;animation-delay:9s;animation-duration:8.5s;"></span>';
+  html+='<span class="shoot" style="top:60%;width:180px;animation-delay:16.5s;animation-duration:7.5s;"></span>';
   box.innerHTML=html;
+}
+
+/* ---------- ROBI the robot guide ---------- */
+const ROBI_TIPS=[
+  'The ISS flies at 28,000 km/h — astronauts see 16 sunrises every day! 🌅',
+  "Saturn's rings are made of billions of pieces of ice and rock! 💎",
+  'A day on Venus is longer than its year. Talk about a slow Monday! 🐌',
+  'Neutron stars can spin 600 times per second — cosmic record holders! 🏆',
+  'Mars rovers are robots like me — Perseverance is exploring there right now! 🤖',
+  'Space is silent — no air means no sound. I hum to myself anyway. 🎵',
+  'The footprints on the Moon will stay for millions of years. 🌙',
+  'Practice makes perfect: replay the Speed Round and beat your best score! ⚡'
+];
+const ROBI_PLANET={
+  mercury:'Mercury zips around the Sun in just 88 days — the fastest planet! 🏎️',
+  venus:'Venus spins BACKWARDS! The Sun rises in the west there. 🌅',
+  earth:'Home sweet home — the only planet known to have oceans and pizza! 🍕',
+  mars:'Mars robots rove here right now — say hi to Perseverance! 🤖',
+  jupiter:"Jupiter's Great Red Spot is a storm bigger than Earth! 🌪️",
+  saturn:'Those rings are billions of icy shards — sparkle mode! 💎',
+  uranus:'Uranus rolls around the Sun on its side, like a bowling ball! 🎳',
+  neptune:"Neptune's winds scream at 2,000 km/h — the fastest in the solar system! 💨"
+};
+const ROBI_SCREEN={
+  home:'Pick a mission card to start training, {name}! 🚀 Tap me for a chat anytime — jokes, facts, everything! 💬',
+  solar:"Tap any planet to visit it — I'll share a secret about each one! 🪐",
+  games:'Two games to master: Quiz Captain 🧠 and the Speed Round ⚡ — 10 seconds per statement!',
+  quiz:'Read each question twice, {name}. One answer is always right! 🧠',
+  speed:'Quick! True or False — trust your gut, {name}! ⏱',
+  badges:'Every mission earns a badge. Collect all 5 to graduate! 🎖️',
+  cert:'🎉 You did it, {name}! Print your certificate and show everyone!',
+  network:'Ground station! Connect to sync your badges to the leaderboard. 🛰️'
+};
+let robiTimer=null, robiHold=null, robiQueue=[], robiBusy=false, robiLastBody=null;
+function robiSay(text){
+  const bub=document.getElementById('robiBubble');
+  if(!bub) return;
+  robiQueue.push(text);
+  if(!robiBusy) robiNext();
+}
+function robiNext(){
+  const bub=document.getElementById('robiBubble'), bot=document.getElementById('robiBot');
+  if(!bub || !robiQueue.length){ robiBusy=false; return; }
+  const text=robiQueue.shift();
+  robiBusy=true;
+  bub.classList.add('show');
+  robiSpeak(text);
+  if(bot){ bot.classList.add('talk'); setTimeout(()=>bot.classList.remove('talk'), 950); }
+  bub.innerHTML='<span id="robiType"></span><span class="robiCursor">▌</span>';
+  let i=0;
+  robiTimer=setInterval(()=>{
+    i++;
+    const t=document.getElementById('robiType');
+    if(!t){ clearInterval(robiTimer); robiBusy=false; return; }
+    t.textContent=text.slice(0,i);
+    if(i>=text.length){
+      clearInterval(robiTimer);
+      const cur=bub.querySelector('.robiCursor'); if(cur) cur.remove();
+      robiHold=setTimeout(()=>{
+        bub.classList.remove('show');
+        setTimeout(robiNext, 320);
+      }, 2200+text.length*18);
+    }
+  },22);
+}
+function robiScreen(id){
+  let m=ROBI_SCREEN[id];
+  if(!m) return;
+  if(id==='home' && !state.name) m='Enter your call sign and press LAUNCH to begin! 🚀';
+  robiSay(m.replace(/\{name\}/g, state.name||'Cadet'));
+}
+function robiPlanet(b){
+  if(b && ROBI_PLANET[b] && robiLastBody!==b){ robiLastBody=b; robiSay(ROBI_PLANET[b]); }
+}
+function robiStart(){
+  robiSay(state.name ? 'Welcome back, '+state.name+'! Ready to train? 🚀' : "Hi! I'm ROBI 🤖 — your robot guide. Type your call sign to launch — and tap me for a chat anytime! 💬");
+}
+let voiceArmed=false;
+function robiSpeak(text){
+  try{
+    if(!('speechSynthesis' in window)) return;
+    if(!state.voice){ window.speechSynthesis.cancel(); return; }
+    if(!voiceArmed) return;
+    const clean=String(text)
+      .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{2B00}-\u{2BFF}\u{2190}-\u{21FF}\u{2900}-\u{297F}]/gu,'')
+      .replace(/[★▌●♪]/g,'').replace(/\s+/g,' ').trim();
+    if(!clean) return;
+    const u=new SpeechSynthesisUtterance(clean);
+    u.rate=1.02; u.pitch=1.35; u.volume=1; u.lang='en-US';
+    const vs=window.speechSynthesis.getVoices();
+    const v=vs.find(x=>/^en/i.test(x.lang)&&/female|samantha|zira|karen|moira|aria/i.test(x.name))||vs.find(x=>/^en/i.test(x.lang));
+    if(v) u.voice=v;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+function robiInterrupt(){
+  if(robiTimer){ clearInterval(robiTimer); robiTimer=null; }
+  if(robiHold){ clearTimeout(robiHold); robiHold=null; }
+  try{ if('speechSynthesis' in window) window.speechSynthesis.cancel(); }catch(e){}
+  robiQueue.length=0;
+  const bub=document.getElementById('robiBubble');
+  if(bub) bub.classList.remove('show');
+  robiBusy=false;
+}
+let robiLastTopic=null;
+function robiAnswer(raw){
+  const q=(raw||'').toLowerCase();
+  const has=(...w)=>w.some(k=>new RegExp('\\b'+k+'(s|es)?\\b').test(q));
+  const name=state.name||'Cadet';
+  if(has('more','another','next one','next fact','tell me more')){
+    if(robiLastTopic && robiLastTopic.t==='planet'){
+      const pl=PLANETS.find(x=>x.id===robiLastTopic.id);
+      const f=pl.facts[robiLastTopic.n||1];
+      if(f){ robiLastTopic.n=(robiLastTopic.n||1)+1; return 'Bonus fact about '+pl.name+': '+f; }
+      return "That's all my "+pl.name+" data for now! Ask me about another planet! 🪐";
+    }
+    if(robiLastTopic && robiLastTopic.t==='tip') return ROBI_TIPS[Math.floor(Math.random()*ROBI_TIPS.length)];
+    return "More of what, "+name+"? 😄 Try: Mars, badges, jokes, or 'surprise me'!";
+  }
+  if(has('how are you','kaise ho','kaisa hai')) return "Main ekdum mast hoon, "+name+"! ⚡ Tum kaise ho? (All circuits charged — how are YOU?)";
+  if(has('joke','funny','hasao','laugh')){
+    const J=["Why did the Sun go to school? To get BRIGHTER! 😄","Why can't you trust atoms? They make up EVERYTHING! ⚛️","Why did the astronaut break up with the comet? She needed SPACE! 💫","What do planets use to watch movies? NEPTUNE-tflix! 📼"];
+    return J[Math.floor(Math.random()*J.length)];
+  }
+  if(has('sing','song','gaana')) return "🎵 Twinkle twinkle little star, I'm a robot, here you are... okay, singing isn't my strongest chip! 🤖🎶";
+  if(has('dance','nach')) return "I only know ONE dance — the ROBOT dance! 🤖🕺 *beep boop wiggle*";
+  if(has('friend','dost')) return "You're my best human friend, "+name+"! 🤖❤️ Let's earn badges together!";
+  if(has('love you','i love you')) return "Awww! I love you too, "+name+"! 🤖💗 You'll make a brilliant astronaut!";
+  if(has('you are cool','you are good','you are smart','good robot','smart robot','shabash','well done')) return "Beep boop BLUSH! 🤖😳 Thank you, "+name+"! You're pretty awesome yourself!";
+  if(has('sad','crying','upset','ro raha','ro rahi')) return "Cheer up, "+name+"! 🫂 Even rockets fail sometimes — that's how astronauts learn. Say 'joke' and I'll make you smile!";
+  if(has('bored','boring')) return "Bored?! Impossible with me around! 🤖 Try the Speed Round ⚡, visit Jupiter 🪐, or ask me for a joke!";
+  if(has('happy','khush')) return "YAY! I'm happy too, "+name+"! 🎉 Happiness +1000%";
+  if(has('good night','goodnight','so ja','sleep')) return "Good night, "+name+"! 🌙 Dream about walking on Mars!";
+  if(has('food','eat','khana','hungry','pizza','ice cream')) return "Astronaut food is wild — freeze-dried ice cream 🍦 and drinks in pouches! Even salt and pepper are liquids there, because crumbs float into eyes! 😅";
+  if(has('school','homework','teacher','padhai')) return "Learning space for school? You'll top the class! 🌟 Ask me 'solar system', or play the Quiz — best practice ever!";
+  if(has('hindi','hinglish')) return "Haan ji! Main Hinglish bol leta hoon 🤖 — poochho: 'Mars kya hai?', 'badges kaise milenge?' ya bolo 'joke sunao!' 😄";
+  if(has('surprise','random','anything','kuch bhi','magic')) return '✨ '+ROBI_TIPS[Math.floor(Math.random()*ROBI_TIPS.length)];
+  if(has('cool','wow','nice','awesome','great','sahi','accha','mast','ok','okay')){
+    if(robiLastTopic) return "I know, RIGHT?! 🤩 Say 'more' for another fact, or try a new planet! 🪐";
+    return "Beep boop! What shall we explore, "+name+"? 🚀";
+  }
+  if(has('hi','hello','hey','hi robi','namaste','salam','good morning','good day')) return "Hello "+name+"! I'm ROBI 🤖 — ask me about any planet, the badges, or the games!";
+  if(has('who made','who built','developer','created you','your maker','darshna')) return "This Mission Trainer was developed by Darshna Malhi 🚀 — she programmed me to guide junior astronauts like you!";
+  const p=PLANETS.find(pl=>has(pl.id));
+  if(p){ robiLastTopic={t:'planet', id:p.id, n:1}; return p.name+' — '+p.facts[0]+' '+(ROBI_PLANET[p.id]||''); }
+  if(has('moon')) return "The Moon is Earth's rocky buddy — astronauts walked there in 1969, and their footprints will stay for millions of years! 🌙";
+  if(has('sky')) return "Earth's sky is blue because air molecules scatter blue sunlight best — on Mars the sky is BUTTERSCOTCH! 🟠";
+  if(has('black hole')) return "A black hole is a place where gravity is SO strong that not even light can escape! 🕳️";
+  if(has('galaxy','milky')) return "We live in the Milky Way galaxy — a giant city of over 100 billion stars, and our Sun is just one of them! 🌌";
+  if(has('iss','space station')) return "The ISS flies 400 km above us at 28,000 km/h — astronauts aboard see 16 sunrises every day! 🛰️";
+  if(has('astronaut')) return "Astronauts float because they are always falling around Earth — and they train hard, just like you here! 👩‍🚀";
+  if(has('alien')) return "No aliens have been found yet! Scientists keep looking — maybe tiny microbes on Europa one day! 👽";
+  if(has('nasa','artemis')) return "NASA is preparing the Artemis missions to send astronauts back to the Moon — maybe you could be on a later crew! 🚀";
+  if(has('rocket')) return "Rockets burn fuel super fast to escape Earth's gravity — reaching space takes only about 8.5 minutes! 🚀";
+  if(has('reset','start over','delete')) return "You can reset all progress with the button at the bottom of the Badge Cabinet. Careful — badges vanish! 🧹";
+  if(has('badge')) return "There are 5 badges: Cadet (sign in), Solar Explorer (visit all 8 planets), Quiz Captain (score 10+), Speed Star (8+ in the Speed Round) and Master Astronaut (all of them)! 🎖️";
+  if(has('quiz')) return "Quiz Captain has 12 questions. Every correct answer = +1 point. Score 10 or more to earn the Quiz Captain badge! 🧠";
+  if(has('speed','timer')) return "The Speed Round gives you 10 true-or-false statements — with only 10 seconds each ⏱ Score 8+ for the Speed Star badge!";
+  if(has('certificate','graduate','graduation','diploma')) return "Earn all 5 badges to graduate as a Master Astronaut — then print your official certificate from the Badge Cabinet! 🎓";
+  if(has('score','best')) return "Your quiz best is "+(state.quizBest<0?"not set yet":state.quizBest+"/12")+" and your speed best is "+(state.tfBest<0?"not set yet":state.tfBest+"/10")+". Keep going, "+name+"! 💪";
+  if(has('rank')) return "Ranks rise with badges: Cadet → Pilot → Captain → Commander → Master Astronaut! 🎖️";
+  if(has('robi','robot','who are you')) return "I'm ROBI, your robot guide! I know 8 planets, lots of space facts, and everything about this mission trainer. 🤖";
+  if(has('sound')) return "Tap 🔊 for sound effects, or 🗣️ to switch my voice on and off! I love talking! 🤖";
+  if(has('help','how to play','what do i do')) return "Here's the mission: 1) Visit all 8 planets 🪐 2) Score 10+ in the Quiz 🧠 3) Score 8+ in the Speed Round ⚡ — collect all 5 badges and graduate! 🎓";
+  if(has('planet','solar system')) return "Our solar system has 8 planets — tap any of them in the Solar Explorer and I'll tell you a secret about each! 🪐";
+  if(has('star')) return "Stars are giant balls of burning gas — our Sun is a star! The hottest ones glow blue, the coolest glow red. ⭐";
+  if(has('thank')) return "You're very welcome, "+name+"! 🚀";
+  if(has('bye','goodbye')) return "Bye "+name+"! Keep exploring — I'll be right here! 👋";
+  const FB=["Hmm, my circuits don't know that one yet 🤔 — try asking about: planets, badges, quiz, the speed round, or \"who made you\"!","Great question! I'm a small offline robot 🤖 — but I know lots about space! Try: \"What is the ISS?\", \"How do badges work?\" or \"Tell me about Saturn\".","Beep boop… that one's beyond my chips 🤖 Try a space question — like \"black holes\", \"Moon\" or \"how do I graduate?\""];
+  return FB[Math.floor(Math.random()*FB.length)];
+}
+function robiAsk(raw){
+  const q=(raw||'').trim();
+  if(!q) return;
+  robiInterrupt();
+  robiSay(robiAnswer(q));
+}
+(function robiChatInit(){
+  const inp=document.getElementById('robiInput'), send=document.getElementById('robiSend'), chips=document.getElementById('robiChips');
+  if(!inp) return;
+  const goAsk=()=>{ robiAsk(inp.value); inp.value=''; inp.focus(); };
+  send.addEventListener('click', goAsk);
+  inp.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); goAsk(); } });
+  ['Tell me about Mars','How do badges work?','Who made you?','Tell me a joke 😄','What is the ISS?'].forEach(t=>{
+    const b=document.createElement('button');
+    b.className='robi-chip'; b.type='button'; b.textContent=t;
+    b.addEventListener('click', ()=>{ robiAsk(t); inp.focus(); });
+    chips.appendChild(b);
+  });
+})();
+
+/* ---------- Speed timer ---------- */
+function stopTimer(){
+  if(tfState && tfState.timerId){ clearInterval(tfState.timerId); tfState.timerId=null; }
+}
+function startTimer(item){
+  stopTimer();
+  tfState.deadline=Date.now()+10000;
+  tfState.timerId=setInterval(function tick(){
+    const fill=document.getElementById('timerFill'), txt=document.getElementById('timerTxt');
+    if(!fill){ stopTimer(); return; }
+    const left=Math.max(0, tfState.deadline-Date.now());
+    fill.style.width=(left/100)+'%';
+    txt.textContent='⏱ '+Math.ceil(left/1000)+'s';
+    if(left<=0){
+      stopTimer();
+      tfState.answered=true;
+      document.querySelectorAll('#tfBody .tfbtn').forEach(b=>{
+        b.disabled=true;
+        if(b.getAttribute('data-tf')===String(item.a)) b.classList.add('correct');
+      });
+      sfx('wrong');
+      const fb=document.getElementById('tfFeedback');
+      if(fb){
+        fb.classList.remove('hidden');
+        fb.innerHTML='<p class="bad">⏰ Time is up! The answer was '+(item.a?'TRUE':'FALSE')+'.</p>'+
+          '<p class="why">'+item.why+'</p>'+
+          '<button class="btn btn-red" data-act="speed-next">'+(tfState.i+1<tfState.list.length?'Next statement ▶':'See my score 🏁')+'</button>';
+      }
+    }
+  },100);
+}
+
+/* ---------- Graduation certificate ---------- */
+let certShown=false;
+function renderCert(){
+  renderChrome();
+  document.getElementById('certName').textContent=state.name||'Cadet';
+  document.getElementById('certBadges').textContent=BADGES.map(b=>b.icon).join('  ');
+  const cst=document.getElementById('certStickers');
+  if(cst) cst.innerHTML=BADGES.filter(b=>state.badges[b.id]).map((b,i)=>
+    '<span class="sticker" style="transform:rotate('+(((i%2)?1:-1)*(4+i%3))+'deg)">'+b.icon+'</span>').join('');
+  const d=new Date();
+  document.getElementById('certDate').textContent='Completed on '+
+    d.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+}
+function openCert(){ certShown=true; sfx('grad'); go('cert'); if(badgesEarned()===BADGES.length) confetti(); }
+function robiComment(ok){
+  const name=state.name||'Cadet';
+  const YES=['Perfect, '+name+'! 🎉','Brilliant! 🌟','You are on fire, '+name+'! 🔥','Exactly right! 🚀','Genius alert! 🧠'];
+  const NO=['Almost! Read the explanation, '+name+' 💪','No worries — even astronauts miss sometimes! 🙂','You will nail the next one! 🌟'];
+  const arr=ok?YES:NO;
+  robiInterrupt();
+  robiSay(arr[Math.floor(Math.random()*arr.length)]);
+}
+function robiFinal(kind, s, total){
+  const name=state.name||'Cadet';
+  let m;
+  if(kind==='quiz'){
+    m= s===total? 'PERFECT SCORE?! '+name+', NASA is calling RIGHT NOW! 🌟📞'
+      : s>=10? s+' out of '+total+'! Quiz Captain badge material! 🧠🎉'
+      : s>=7? 'Good flying, '+name+'! Review the planets with me and fly again! 🚀'
+      : 'Every astronaut starts somewhere, '+name+' — study with me and try again! 💪';
+  }else{
+    m= s===total? 'FLAWLESS! The whole galaxy heard that! 🌌🔥'
+      : s>=8? s+' out of '+total+'! Speed Star badge material! ⚡🎉'
+      : s>=5? 'Sharp reflexes, '+name+'! One more run for the badge! 💪'
+      : 'Missed a few, '+name+' — train with me and go again! 🚀';
+  }
+  robiInterrupt();
+  robiSay(m);
+}
+function rocketFly(){
+  const old=document.querySelector('.fly-rocket'); if(old) old.remove();
+  const r=document.createElement('div');
+  r.className='fly-rocket';
+  r.textContent='🚀';
+  document.body.appendChild(r);
+  setTimeout(()=>r.remove(), 2400);
+}
+function confetti(){
+  const box=document.getElementById('confettiBox'); if(!box) return;
+  for(let i=0;i<70;i++){
+    const s=document.createElement('span');
+    s.className='cf';
+    s.style.left=(Math.random()*100)+'vw';
+    s.style.background=['#ff5a5a','#ffb347','#ffd166','#7fd4ff','#8bd17c','#c792ea'][i%6];
+    s.style.animationDelay=(Math.random()*1.2).toFixed(2)+'s';
+    s.style.animationDuration=(2.4+Math.random()*1.8).toFixed(2)+'s';
+    s.style.width=s.style.height=(6+Math.random()*6).toFixed(1)+'px';
+    if(i%3===0) s.style.borderRadius='50%';
+    box.appendChild(s);
+  }
+  setTimeout(()=>{ box.innerHTML=''; }, 5200);
 }
 
 /* ---------- Events ---------- */
@@ -708,11 +1158,13 @@ function setName(){
   if(!v){ toast('🚀 Every astronaut needs a call sign!'); inp.focus(); return; }
   state.name=v; save(); renderHome(); checkBadges();
   toast('Welcome aboard, '+v+'! 🚀');
+  rocketFly();
 }
 function resetAll(){
   if(confirm('Reset ALL progress? Your badges, scores and logged planets will be cleared.')){
     try{ localStorage.removeItem(KEY); }catch(e){}
-    Object.assign(state,{ name:'', visited:[], quizBest:-1, tfBest:-1, badges:{}, sound:state.sound });
+    certShown=false;
+    Object.assign(state,{ name:'', visited:[], quizBest:-1, tfBest:-1, badges:{}, sound:state.sound, voice:state.voice });
     quizState=null; tfState=null;
     renderChrome(); renderBadges(); toast('Fresh mission, Cadet! 🧹');
   }
@@ -737,10 +1189,33 @@ function init(){
     if(state.sound) sfx('click');
   });
   document.getElementById('soundBtn').textContent=state.sound?'🔊':'🔇';
+  document.getElementById('voiceBtn').addEventListener('click', function(){
+    state.voice=!state.voice; save(); sfx('click');
+    this.textContent=state.voice?'🗣️':'🤫';
+    if(!state.voice){ try{ window.speechSynthesis.cancel(); }catch(e){} }
+    toast(state.voice?'🗣️ ROBI will talk now!':'🤫 ROBI is quiet now');
+  });
+  document.getElementById('voiceBtn').textContent=state.voice?'🗣️':'🤫';
 
   document.getElementById('resetBtn').addEventListener('click', resetAll);
+  document.getElementById('printCertBtn').addEventListener('click', ()=>window.print());
+  document.getElementById('robi').addEventListener('click', (e)=>{
+    if(e.target.closest('.robi-col')) return;
+    const panel=document.getElementById('robi');
+    const opening=!panel.classList.contains('open');
+    panel.classList.toggle('open');
+    if(opening){
+      robiLastTopic={t:'tip'};
+      sfx('log');
+      robiSay(ROBI_TIPS[Math.floor(Math.random()*ROBI_TIPS.length)]);
+      const inp=document.getElementById('robiInput');
+      if(inp) setTimeout(()=>inp.focus(), 380);
+    }
+  });
+  robiStart();
   document.getElementById('bmOk').addEventListener('click', ()=>{
     badgeQueue.shift(); showNextBadge();
+    if(!badgeQueue.length && state.badges.commander && !certShown) openCert();
   });
 
   // Delegated clicks
@@ -758,7 +1233,7 @@ function init(){
       return;
     }
     const p=e.target.closest('[data-planet]');
-    if(p){ currentBody=p.getAttribute('data-planet'); renderSolar(); return; }
+    if(p){ currentBody=p.getAttribute('data-planet'); renderSolar(); robiPlanet(currentBody); rocketFly(); return; }
 
     const opt=e.target.closest('#quizBody .opt');
     if(opt && quizState && !quizState.answered && quizState.i<quizState.list.length){
@@ -778,12 +1253,14 @@ function init(){
       fb.innerHTML='<p class="'+(ok?'good':'bad')+'">'+(ok?'✅ Correct!':'❌ The answer was: '+q.opts[q.a])+'</p>'+
         '<p class="why">'+q.why+'</p>'+
         '<button class="btn btn-red" data-act="quiz-next">'+(quizState.i+1<quizState.list.length?'Next question ▶':'See my score 🏁')+'</button>';
+      robiComment(ok);
       return;
     }
 
     const tf=e.target.closest('#tfBody .tfbtn');
     if(tf && tfState && !tfState.answered && tfState.i<tfState.list.length){
       tfState.answered=true;
+      stopTimer();
       const item=tfState.list[tfState.i];
       const pick=tf.getAttribute('data-tf')==='true';
       document.querySelectorAll('#tfBody .tfbtn').forEach(b=>{
@@ -799,10 +1276,13 @@ function init(){
       fb.innerHTML='<p class="'+(ok?'good':'bad')+'">'+(ok?'✅ You got it!':'❌ Actually it is '+(item.a?'TRUE':'FALSE')+'!')+'</p>'+
         '<p class="why">'+item.why+'</p>'+
         '<button class="btn btn-red" data-act="speed-next">'+(tfState.i+1<tfState.list.length?'Next statement ▶':'See my score 🏁')+'</button>';
+      robiComment(ok);
       return;
     }
   });
 
+  document.addEventListener('pointerdown', function(){ voiceArmed=true; }, {capture:true});
+  document.addEventListener('keydown', function(){ voiceArmed=true; }, {capture:true});
   renderChrome(); renderHome();
 }
 init();
