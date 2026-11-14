@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Junior Astronaut Mission Trainer</title>
+<style>
+  :root{
+    --bg:#070b1e; --panel:#0e1533; --panel2:#131c44; --line:#22306b;
+    --text:#e8ecff; --dim:#9fb0d8; --red:#fc3d21; --blue:#2a6df4; --gold:#ffd25e; --green:#2ecc71;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background:radial-gradient(1200px 700px at 70% -10%, #101a45 0%, var(--bg) 55%);
+    color:var(--text);
+    font-family:'Segoe UI', 'Trebuchet MS', Verdana, Arial, sans-serif;
+    line-height:1.5; overflow-x:hidden;
+  }
+  #stars{position:fixed; inset:0; z-index:0; pointer-events:none;}
+  .star{position:absolute; background:#fff; border-radius:50%;}
+  .tw{animation:tw 3.2s infinite;}
+  @keyframes tw{50%{opacity:.15;}}
+  main,header.topbar,footer{position:relative; z-index:1;}
+
+  /* Top bar */
+  .topbar{display:flex; justify-content:space-between; align-items:center; gap:10px;
+    padding:12px 20px; background:rgba(7,11,30,.85); border-bottom:1px solid var(--line);
+    position:sticky; top:0; backdrop-filter:blur(4px); z-index:5;}
+  .brand{display:flex; align-items:center; gap:12px; background:none; border:none; cursor:pointer;
+    color:var(--text); text-align:left; font-weight:800; font-size:12px; letter-spacing:2px; line-height:1.3;}
+  .brand-bar{width:26px; height:26px; border-radius:4px; flex:0 0 auto;
+    background:linear-gradient(135deg, var(--red) 0 50%, var(--blue) 50% 100%);}
+  .topright{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  .chip{border:1px solid var(--line); background:var(--panel); border-radius:999px;
+    padding:6px 12px; font-size:12px; font-weight:700; letter-spacing:.5px; white-space:nowrap;}
+  .iconbtn{background:var(--panel); border:1px solid var(--line); color:var(--text);
+    border-radius:8px; padding:5px 10px; cursor:pointer; font-size:14px;}
+  .iconbtn:hover{border-color:var(--blue);}
+
+  main{max-width:980px; margin:0 auto; padding:22px 18px 40px;}
+  .screen{display:none;}
+  .screen.active{display:block;}
+
+  .panel{background:linear-gradient(180deg, var(--panel), #0b1230);
+    border:1px solid var(--line); border-radius:16px; padding:24px;
+    box-shadow:0 10px 30px rgba(0,0,0,.35); margin-bottom:18px;}
+  .sub{color:var(--dim); font-size:14px; margin-top:4px;}
+  h1{font-size:clamp(28px,4.5vw,44px); letter-spacing:3px; color:#fff; text-transform:uppercase;}
+  h2{font-size:clamp(20px,3vw,28px); letter-spacing:2px; color:#fff; text-transform:uppercase; margin:8px 0 4px;}
+  h3{font-size:18px; letter-spacing:1px; margin-bottom:6px;}
+  .hidden{display:none !important;}
+
+  /* Buttons */
+  .btn{background:var(--blue); color:#fff; border:none; border-radius:10px;
+    padding:12px 20px; font-weight:800; text-transform:uppercase; letter-spacing:1px;
+    font-size:14px; cursor:pointer; transition:filter .15s, transform .1s;}
+  .btn:hover{filter:brightness(1.2);}
+  .btn:active{transform:scale(.97);}
+  .btn-red{background:var(--red);}
+  .ghost{background:transparent; border:1px solid var(--line); color:var(--dim);}
+  .ghost:hover{color:var(--text); border-color:var(--blue); filter:none;}
+  .small{padding:8px 14px; font-size:12px;}
+
+  /* Home */
+  .signinrow{display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;}
+  #nameInput{flex:1 1 220px; background:var(--panel2); border:1px solid var(--line); color:var(--text);
+    border-radius:10px; padding:12px 14px; font-size:16px;}
+  #nameInput:focus{outline:2px solid var(--blue);}
+  label{color:var(--dim); font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase;}
+  .big{font-size:20px; font-weight:800; margin:8px 0;}
+  .rankrow{margin-top:16px;}
+  .rankbar{height:12px; background:var(--panel2); border:1px solid var(--line); border-radius:999px; overflow:hidden;}
+  #rankFill{height:100%; width:0%; background:linear-gradient(90deg, var(--blue), var(--gold));
+    border-radius:999px; transition:width .5s;}
+  #rankLabel{font-size:12px; color:var(--dim); font-weight:700; letter-spacing:1px;}
+  .funfact{margin-top:16px; font-size:14px; color:var(--gold); background:rgba(255,210,94,.07);
+    border:1px dashed rgba(255,210,94,.4); border-radius:10px; padding:10px 14px; min-height:40px;}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:16px;}
+  .mission{text-align:left;}
+  .mission .mi{font-size:40px;}
+  .mission p{color:var(--dim); font-size:14px; margin:6px 0 12px;}
+  .mission .stat{display:inline-block; font-size:12px; font-weight:800; letter-spacing:1px;
+    color:var(--gold); border:1px solid rgba(255,210,94,.35); border-radius:999px; padding:4px 10px; margin-bottom:12px;}
+
+  /* Solar */
+  .rail{display:flex; gap:10px; overflow-x:auto; padding:12px 4px; scrollbar-width:thin;}
+  .rail-item{flex:0 0 auto; width:98px; background:var(--panel2); border:1px solid var(--line);
+    border-radius:12px; padding:10px 6px 8px; text-align:center; cursor:pointer;}
+  .rail-item:hover{border-color:var(--blue);}
+  .rail-item.sel{border-color:var(--blue); background:#152053;}
+  .mini{width:36px; height:36px; border-radius:50%; margin:0 auto 6px; box-shadow:inset -4px -4px 8px rgba(0,0,0,.5);}
+  .rail-item .nm{font-size:12px; font-weight:800;}
+  .rail-item .done{color:var(--green); font-size:11px; font-weight:700; height:14px; display:block;}
+  .detail{display:grid; grid-template-columns:210px 1fr; gap:24px; align-items:start; margin-top:12px;}
+  @media (max-width:640px){ .detail{grid-template-columns:1fr;} }
+  .ball{width:180px; height:180px; border-radius:50%; position:relative; margin:0 auto;
+    box-shadow:inset -16px -16px 34px rgba(0,0,0,.55), 0 12px 34px rgba(0,0,0,.45);}
+  .ball::after{content:""; position:absolute; left:20%; top:14%; width:32%; height:20%;
+    background:rgba(255,255,255,.4); border-radius:50%; filter:blur(3px);}
+  .ring{position:absolute; left:50%; top:50%; width:240%; height:74%;
+    transform:translate(-50%,-50%) rotate(-16deg); border-radius:50%;
+    border:9px solid rgba(233,196,106,.75); box-shadow:0 0 0 2px rgba(233,196,106,.25) inset; pointer-events:none;}
+  .spot{position:absolute; left:60%; top:40%; width:24%; height:14%;
+    background:#c1440e; border-radius:50%; opacity:.85;}
+  .tag{color:var(--gold); font-weight:800; font-size:14px; letter-spacing:1px; text-transform:uppercase;}
+  .facts{list-style:none; margin-top:10px;}
+  .facts li{padding:7px 0 7px 26px; position:relative; font-size:15px;}
+  .facts li::before{content:"★"; color:var(--gold); position:absolute; left:4px;}
+  .logged{display:inline-block; margin-top:12px; font-size:12px; font-weight:800; letter-spacing:1px;
+    color:var(--green); border:1px solid rgba(46,204,113,.5); border-radius:999px; padding:5px 12px;}
+
+  /* Quiz / Speed */
+  .qmeta{font-size:12px; font-weight:800; letter-spacing:1.5px; color:var(--dim); text-transform:uppercase;}
+  .qtext{font-size:20px; font-weight:700; margin:12px 0 16px;}
+  .opt{display:block; width:100%; text-align:left; padding:14px 16px; margin:10px 0;
+    border-radius:12px; border:1px solid var(--line); background:var(--panel2);
+    color:var(--text); font-size:16px; font-weight:600; cursor:pointer;}
+  .opt:hover:not(:disabled){border-color:var(--blue);}
+  .opt:disabled{cursor:default; opacity:.85;}
+  .opt.correct{border-color:var(--green); background:#14351f;}
+  .opt.wrong{border-color:var(--red); background:#3a1410;}
+  .tfrow{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:8px;}
+  .tfbtn{padding:22px; font-size:20px; font-weight:800; border-radius:14px; cursor:pointer;
+    border:1px solid var(--line); background:var(--panel2); color:var(--text);}
+  .tfbtn:hover:not(:disabled){border-color:var(--blue);}
+  .tfbtn.correct{border-color:var(--green); background:#14351f;}
+  .tfbtn.wrong{border-color:var(--red); background:#3a1410;}
+  .feedback{margin-top:16px; border-top:1px dashed var(--line); padding-top:12px;}
+  .feedback .good{color:var(--green); font-weight:800; font-size:16px;}
+  .feedback .bad{color:var(--red); font-weight:800; font-size:16px;}
+  .feedback .why{color:var(--dim); font-size:14px; margin:8px 0 14px;}
+  .scorebig{font-size:52px; font-weight:900; color:var(--gold); letter-spacing:2px;}
+
+  /* Badges */
+  .badge-card{text-align:center; padding:20px 14px; opacity:.45; filter:grayscale(.7);}
+  .badge-card.earned{opacity:1; filter:none; border-color:var(--gold);
+    box-shadow:0 0 20px rgba(255,210,94,.15);}
+  .badge-card .bic{font-size:46px;}
+  .badge-card h3{margin:8px 0 4px;}
+  .badge-card p{color:var(--dim); font-size:13px;}
+  .badge-card .st{display:inline-block; margin-top:10px; font-size:11px; font-weight:800;
+    letter-spacing:1px; border-radius:999px; padding:4px 12px;}
+  .badge-card .st.on{color:var(--green); border:1px solid rgba(46,204,113,.5);}
+  .badge-card .st.off{color:var(--dim); border:1px solid var(--line);}
+
+  /* Modal */
+  .modal{position:fixed; inset:0; background:rgba(4,6,20,.82); z-index:50;
+    display:flex; align-items:center; justify-content:center; padding:20px;}
+  .modal-card{background:linear-gradient(180deg, #17205a, #0e1533); border:2px solid var(--gold);
+    border-radius:18px; padding:30px; max-width:380px; width:100%; text-align:center;
+    animation:pop .35s;}
+  @keyframes pop{0%{transform:scale(.7); opacity:0;} 100%{transform:scale(1); opacity:1;}}
+  .modal-kicker{color:var(--gold); font-weight:900; letter-spacing:3px; font-size:13px;}
+  .modal-icon{font-size:64px; margin:12px 0;}
+  .modal-card p{color:var(--dim); font-size:14px; margin-bottom:16px;}
+
+  /* Toast */
+  .toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(80px);
+    background:#17205a; border:1px solid var(--blue); color:var(--text); font-weight:700;
+    padding:12px 20px; border-radius:12px; z-index:60; transition:transform .3s; font-size:14px;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+
+  footer{text-align:center; color:var(--dim); font-size:12px; padding:18px; border-top:1px solid var(--line);}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+
+<header class="topbar">
+  <button class="brand" id="brandBtn"><span class="brand-bar"></span>
+    <span>JUNIOR ASTRONAUT<br>MISSION TRAINER</span></button>
+  <div class="topright">
+    <span class="chip" id="rankChip">🎖️ Rank: Cadet</span>
+    <span class="chip" id="badgeChip">🏅 Badges 0/5</span>
+    <button class="iconbtn" id="soundBtn" title="Turn sound on or off">🔊</button>
+  </div>
+</header>
+
+<main>
+  <!-- HOME -->
+  <section id="screen-home" class="screen active">
+    <div class="panel hero">
+      <h1>Mission Control</h1>
+      <p class="sub">Junior Astronaut Training Program · Ages 8–10 · Ready to earn your wings?</p>
+      <div id="signin" style="margin-top:16px;">
+        <label for="nameInput">Step 1 — Enter your astronaut call sign</label>
+        <div class="signinrow">
+          <input id="nameInput" maxlength="14" placeholder="Type your astronaut name..." autocomplete="off">
+          <button class="btn btn-red" id="startBtn">Start Training 🚀</button>
+        </div>
+      </div>
+      <div id="welcome" class="hidden" style="margin-top:16px;">
+        <p class="big" id="welcomeMsg"></p>
+        <button class="btn ghost small" id="editNameBtn">Edit name</button>
+      </div>
+      <div class="rankrow">
+        <div class="rankbar"><div id="rankFill"></div></div>
+        <span id="rankLabel"></span>
+      </div>
+      <p class="funfact" id="funfact"></p>
+    </div>
+
+    <div class="grid">
+      <div class="panel mission">
+        <div class="mi">🪐</div>
+        <h3>Solar System Explorer</h3>
+        <p>Board the spaceship and visit all 8 planets. Each stop is logged in your mission report!</p>
+        <span class="stat" id="statSolar">Visited 0/8</span><br>
+        <button class="btn" data-go="solar">Board the ship</button>
+      </div>
+      <div class="panel mission">
+        <div class="mi">🎮</div>
+        <h3>Training Games</h3>
+        <p>Two challenges: the 12-question Space Quiz and the True/False Speed Round. Train hard!</p>
+        <span class="stat" id="statGames">No scores yet</span><br>
+        <button class="btn" data-go="games">Enter training gym</button>
+      </div>
+      <div class="panel mission">
+        <div class="mi">🏅</div>
+        <h3>Badge Cabinet</h3>
+        <p>Earn 5 mission badges and rise from Cadet to Master Astronaut. Your rank depends on it!</p>
+        <span class="stat" id="statBadges">0/5 earned</span><br>
+        <button class="btn" data-go="badges">Open cabinet</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLAR -->
+  <section id="screen-solar" class="screen">
+    <div class="panel">
+      <button class="btn ghost small" data-go="home">⬅ Mission Control</button>
+      <h2>Solar System Explorer</h2>
+      <p class="sub">Click a planet to visit it — every visit is logged automatically. Visit all 8 planets
+        to earn the <b style="color:var(--gold)">Solar Explorer</b> badge! <span id="solarStat"></span></p>
+      <div class="rail" id="rail"></div>
+      <div class="detail" id="detail"></div>
+    </div>
+  </section>
+
+  <!-- GAMES -->
+  <section id="screen-games" class="screen">
+    <div class="panel">
+      <button class="btn ghost small" data-go="home">⬅ Mission Control</button>
+      <h2>Training Games</h2>
+      <p class="sub">Score <b style="color:var(--gold)">10+</b> in the quiz or <b style="color:var(--gold)">8+</b>
+        in the speed round to earn badges. Good luck, Cadet!</p>
+    </div>
+    <div class="grid">
+      <div class="panel mission">
+        <div class="mi">🧠</div>
+        <h3>Space Quiz</h3>
+        <p>12 multiple-choice questions about planets, astronauts and our star. One question per screen.</p>
+        <span class="stat" id="statQuiz">Best: —</span><br>
+        <button class="btn btn-red" data-act="start-quiz">Launch quiz</button>
+      </div>
+      <div class="panel mission">
+        <div class="mi">⚡</div>
+        <h3>True / False Speed Round</h3>
+        <p>10 quick space statements. Shout "True!" or "False!" — how many can you nail?</p>
+        <span class="stat" id="statSpeed">Best: —</span><br>
+        <button class="btn btn-red" data-act="start-speed">Start round</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="screen-quiz" class="screen">
+    <div class="panel">
+      <button class="btn ghost small" data-go="games">⬅ Training Games</button>
+      <h2>Space Quiz</h2>
+      <div id="quizBody"></div>
+    </div>
+  </section>
+
+  <!-- SPEED -->
+  <section id="screen-speed" class="screen">
+    <div class="panel">
+      <button class="btn ghost small" data-go="games">⬅ Training Games</button>
+      <h2>True / False Speed Round</h2>
+      <div id="tfBody"></div>
+    </div>
+  </section>
+
+  <!-- BADGES -->
+  <section id="screen-badges" class="screen">
+    <div class="panel">
+      <button class="btn ghost small" data-go="home">⬅ Mission Control</button>
+      <h2>Badge Cabinet</h2>
+      <p class="sub">Complete missions to fill your cabinet. Earn all 5 to become a
+        <b style="color:var(--gold)">Master Astronaut</b>!</p>
+    </div>
+    <div class="grid" id="badgeGrid"></div>
+    <div class="panel" style="text-align:center; margin-top:16px;">
+      <button class="btn ghost small" id="resetBtn">Reset all progress</button>
+    </div>
+  </section>
+</main>
+
+<div class="modal hidden" id="badgeModal">
+  <div class="modal-card">
+    <p class="modal-kicker">★ BADGE EARNED ★</p>
+    <div class="modal-icon" id="bmIcon"></div>
+    <h3 id="bmName"></h3>
+    <p id="bmHow"></p>
+    <button class="btn btn-red" id="bmOk">Continue mission</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer>Made for junior astronauts ages 8–10 · Facts checked for the 2026 school year ·
+  Static page — works offline · Progress saves in your browser</footer>
+
+<script>
+'use strict';
+/* ---------- Data ---------- */
+const KEY = 'jat_v1';
+const state = { name:'', visited:[], quizBest:-1, tfBest:-1, badges:{}, sound:true };
+
+const RANKS = ['Cadet','Space Scout','Pilot','Mission Specialist','Commander','Master Astronaut'];
+const BADGES = [
+  { id:'cadet',     icon:'🎖️', name:'Mission Cadet',     how:'Sign in with your astronaut call sign.' },
+  { id:'explorer',  icon:'🪐', name:'Solar Explorer',    how:'Visit all 8 planets in the Solar System module.' },
+  { id:'quiz',      icon:'🧠', name:'Quiz Commander',    how:'Score 10 or more in the 12-question Space Quiz.' },
+  { id:'speed',     icon:'⚡', name:'Speed Ace',         how:'Get 8 or more right in the True/False Speed Round.' },
+  { id:'commander', icon:'🏆', name:'Mission Commander', how:'Earn every other badge. The ultimate honour!' }
+];
+const PLANET_IDS = ['mercury','venus','earth','mars','jupiter','saturn','uranus','neptune'];
+
+const PLANETS = [
+  { id:'sun', name:'The Sun', star:true, tag:'Our closest star',
+    grad:'radial-gradient(circle at 32% 30%, #fff3b0, #ffcc33 55%, #ff8c1a)',
+    facts:[ 'A giant ball of glowing gas — a star, not a planet!',
+            'The surface is about 5,500°C; the core is 15 million°C!',
+            'Sunlight travels to Earth in about 8 minutes.',
+            'About 1.3 million Earths could fit inside it.' ] },
+  { id:'mercury', name:'Mercury', tag:'The speedy little scorcher',
+    grad:'radial-gradient(circle at 32% 30%, #cfc7b8, #94897a 55%, #5c554a)',
+    facts:[ 'Closest planet to the Sun and the smallest of all eight.',
+            'Its year is just 88 Earth days — a birthday every 3 months!',
+            'Days scorch at 430°C, but nights freeze at −180°C.',
+            'No moons, no wind, and almost no air at all.' ] },
+  { id:'venus', name:'Venus', tag:'The furnace with acid clouds',
+    grad:'radial-gradient(circle at 32% 30%, #f6e2a1, #e0a94f 55%, #9c6b23)',
+    facts:[ 'Hottest planet: thick clouds trap heat — about 465°C everywhere.',
+            'It spins backwards, so the Sun rises in the west!',
+            'Its day is longer than its year: one spin takes 243 Earth days.',
+            'Named after the Roman goddess of beauty… but it is a rocky furnace.' ] },
+  { id:'earth', name:'Earth', tag:'The blue life planet',
+    grad:'radial-gradient(circle at 32% 30%, #7fd0ff, #2a7fd4 50%, #123f7a)',
+    facts:[ 'Our home — the only planet known to have life.',
+            'About 71% of the surface is covered by water.',
+            'One Moon keeps us company and pulls the ocean tides.',
+            'A magnetic shield and our air keep us safe from space radiation.' ] },
+  { id:'mars', name:'Mars', tag:'The rusty red frontier',
+    grad:'radial-gradient(circle at 32% 30%, #ffb27a, #d95f2b 55%, #7a2c12)',
+    facts:[ 'The Red Planet — its dust is full of rusty iron.',
+            'A day lasts 24.6 hours, so a Mars day feels familiar.',
+            'Olympus Mons, the tallest volcano known, is more than twice as tall as Mount Everest.',
+            'Robot rovers like Perseverance are exploring it right now.' ] },
+  { id:'jupiter', name:'Jupiter', tag:'The giant of the family',
+    grad:'repeating-linear-gradient(0deg, #d9a86c 0 12px, #eecd9c 12px 20px, #b97e45 20px 28px), radial-gradient(circle at 32% 30%, rgba(255,255,255,.45), rgba(0,0,0,.35))',
+    spot:true,
+    facts:[ 'The biggest planet — about 1,300 Earths could fit inside!',
+            'Its Great Red Spot is a storm wider than Earth, raging for over a century.',
+            'At least 95 moons — including Ganymede, which is bigger than Mercury!',
+            'Shortest day of any planet: one spin takes about 10 hours.' ] },
+  { id:'saturn', name:'Saturn', tag:'Lord of the rings',
+    grad:'radial-gradient(circle at 32% 30%, #f7e7b0, #e6c877 55%, #a8842f)',
+    ring:true,
+    facts:[ 'Famous rings made of billions of chunks of ice and rock.',
+            'So lightweight it could float in water — with a big enough bathtub!',
+            'More than 140 known moons, including Titan with its methane lakes.',
+            'Despite its size, a day lasts only about 10.7 hours.' ] },
+  { id:'uranus', name:'Uranus', tag:'The sideways roller',
+    grad:'radial-gradient(circle at 32% 30%, #d6f7f7, #86e0e6 55%, #3a9db0)',
+    facts:[ 'Rolls around the Sun on its side, like a bowling ball.',
+            'An ice giant painted pale blue-green by methane gas.',
+            'Coldest atmosphere ever measured: about −224°C.',
+            'It has 13 faint rings and 28 known moons.' ] },
+  { id:'neptune', name:'Neptune', tag:'The wild blue edge',
+    grad:'radial-gradient(circle at 32% 30%, #7fb2ff, #2f5fd0 55%, #16307a)',
+    facts:[ 'The farthest planet from the Sun — deep space blue.',
+            'Windiest world: gusts roar faster than 2,000 km/h.',
+            'One trip around the Sun takes 165 Earth years.',
+            'Discovered with math before anyone saw it in a telescope!' ] }
+];
+
+const QUESTIONS = [
+  { q:'Which planet is known as the Red Planet?',
+    opts:['Mars','Venus','Mercury','Jupiter'], a:0,
+    why:'Mars looks red because its soil is full of rusty iron dust!' },
+  { q:'What is the biggest planet in our solar system?',
+    opts:['Jupiter','Saturn','Earth','Neptune'], a:0,
+    why:'Jupiter is enormous — about 1,300 Earths could fit inside it!' },
+  { q:'How long does sunlight take to travel to Earth?',
+    opts:['About 8 minutes','1 second','About 8 hours','8 days'], a:0,
+    why:'Light is super fast, but space is HUGE — the Sun is 150 million km away.' },
+  { q:'Which planet has the most dazzling rings of ice and rock?',
+    opts:['Saturn','Mars','Venus','Mercury'], a:0,
+    why:'Saturn’s rings are billions of icy chunks — some as small as dust, some as big as a house!' },
+  { q:'What do we call a person trained to travel into space?',
+    opts:['An astronaut','A veterinarian','A geologist','Only a pilot'], a:0,
+    why:'“Astronaut” comes from Greek words meaning “star sailor”!' },
+  { q:'Which planet is closest to the Sun?',
+    opts:['Mercury','Earth','Uranus','Neptune'], a:0,
+    why:'Mercury races around the Sun fastest — its year is only 88 Earth days!' },
+  { q:'The Sun is actually a …',
+    opts:['Star','Planet','Moon','Comet'], a:0,
+    why:'The Sun is a giant ball of hot glowing gas — our very own star.' },
+  { q:'Which planet spins on its side like a rolling ball?',
+    opts:['Uranus','Jupiter','Earth','Mars'], a:0,
+    why:'A giant crash long ago may have knocked Uranus over — now it rolls along its orbit!' },
+  { q:'How many planets orbit our Sun?',
+    opts:['8','5','12','100'], a:0,
+    why:'Eight: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus and Neptune. Pluto is a dwarf planet.' },
+  { q:'Which robot rover is exploring Mars right now?',
+    opts:['Perseverance','Titanic','Voyager 9','Moon Buggy 3'], a:0,
+    why:'Perseverance landed in 2021 and hunts for signs of ancient life on Mars.' },
+  { q:'Which planet is the hottest of all?',
+    opts:['Venus','Mercury','Mars','Jupiter'], a:0,
+    why:'Surprise! Venus beats Mercury because thick clouds trap the Sun’s heat like a blanket — about 465°C!' },
+  { q:'What acts like a shield that protects Earth from the Sun’s harmful particles?',
+    opts:['Earth’s magnetic field','The Moon’s shadow','Rain clouds','Airplane trails'], a:0,
+    why:'Earth’s magnetic field pushes dangerous solar particles away — it even creates auroras near the poles!' }
+];
+
+const TF = [
+  { s:'The Sun is a planet.', a:false, why:'It is a star — a giant ball of glowing gas!' },
+  { s:'Venus is the hottest planet in our solar system.', a:true, why:'About 465°C — its clouds act like a heat-trapping blanket.' },
+  { s:'Saturn’s rings are made of ice and rock.', a:true, why:'Billions of chunks of ice and rock, from dust-sized to house-sized!' },
+  { s:'A day on Mars lasts about 24.6 hours.', a:true, why:'Very close to Earth’s 24 hours — a Mars day feels familiar.' },
+  { s:'Jupiter has more than 90 moons.', a:true, why:'At least 95 have been found — and more keep being discovered!' },
+  { s:'Neptune is the closest planet to the Sun.', a:false, why:'Mercury is closest. Neptune is the farthest planet!' },
+  { s:'Earth is the only planet known to have life.', a:true, why:'Scientists are still searching — but so far, Earth is one of a kind!' },
+  { s:'One year on Neptune lasts about 165 Earth years.', a:true, why:'Neptune is so far from the Sun that its orbit is enormous.' },
+  { s:'The Moon is a planet.', a:false, why:'The Moon is a satellite — it orbits Earth, not the Sun.' },
+  { s:'Uranus spins on its side.', a:true, why:'A giant ancient crash may have knocked it over!' }
+];
+
+const FACTS = [
+  'A day on Venus is longer than its year!',
+  'Astronauts can grow up to 5 cm taller while living in space!',
+  'The ISS circles Earth every 90 minutes — that is 16 sunrises a day!',
+  'Saturn is so light it could float in a giant bathtub!',
+  'Space officially starts just 100 km above your head — the Kármán line!',
+  'Neutron stars can spin more than 600 times per second!',
+  'On Mars, sunsets look blue!'
+];
+
+/* ---------- State helpers ---------- */
+function load(){ try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s) Object.assign(state,s);}catch(e){} }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+function shuffle(arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function badgesEarned(){ return BADGES.filter(b=>state.badges[b.id]).length; }
+
+/* ---------- Sound ---------- */
+let AC=null;
+function beep(freq,dur,type,delay){
+  if(!state.sound) return;
+  try{
+    AC = AC || new (window.AudioContext||window.webkitAudioContext)();
+    const t=AC.currentTime+(delay||0);
+    const o=AC.createOscillator(), g=AC.createGain();
+    o.type=type||'sine'; o.frequency.value=freq;
+    g.gain.setValueAtTime(.0001,t);
+    g.gain.exponentialRampToValueAtTime(.18,t+.02);
+    g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(g); g.connect(AC.destination);
+    o.start(t); o.stop(t+dur+.05);
+  }catch(e){}
+}
+function sfx(n){
+  if(n==='click'){ beep(440,.05); }
+  if(n==='correct'){ beep(660,.12); beep(880,.16,'sine',.1); }
+  if(n==='wrong'){ beep(180,.25,'square'); }
+  if(n==='badge'){ [523,659,784,1047].forEach((f,i)=>beep(f,.16,'triangle',i*.09)); }
+  if(n==='log'){ beep(740,.08); beep(980,.1,'sine',.08); }
+}
+
+/* ---------- UI helpers ---------- */
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2400);
+}
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id==='screen-'+id));
+  if(id==='home') renderHome();
+  if(id==='solar') renderSolar();
+  if(id==='games') renderGames();
+  if(id==='badges') renderBadges();
+  if(id==='quiz') renderQuiz();
+  if(id==='speed') renderSpeed();
+  window.scrollTo(0,0);
+}
+function renderChrome(){
+  const n=badgesEarned();
+  document.getElementById('rankChip').textContent='🎖️ Rank: '+RANKS[n];
+  document.getElementById('badgeChip').textContent='🏅 Badges '+n+'/5';
+  const fill=document.getElementById('rankFill');
+  if(fill){ fill.style.width=(n/BADGES.length*100)+'%'; }
+  const rl=document.getElementById('rankLabel');
+  if(rl){ rl.textContent=RANKS[n]+' · '+n+' of 5 badges earned'; }
+}
+
+/* ---------- Home ---------- */
+let factIdx=Math.floor(Math.random()*FACTS.length);
+function rotateFact(){
+  factIdx=(factIdx+1)%FACTS.length;
+  document.getElementById('funfact').textContent='💡 Did you know? '+FACTS[factIdx];
+}
+function renderHome(){
+  const sign=document.getElementById('signin'), wel=document.getElementById('welcome');
+  if(state.name){
+    sign.classList.add('hidden'); wel.classList.remove('hidden');
+    document.getElementById('welcomeMsg').textContent=
+      'Welcome back, '+state.name+'! You are a '+RANKS[badgesEarned()]+' today. 🚀';
+  }else{
+    sign.classList.remove('hidden'); wel.classList.add('hidden');
+  }
+  document.getElementById('statSolar').textContent='Visited '+countVisited()+'/8';
+  const best=[];
+  if(state.quizBest>=0) best.push('Quiz '+state.quizBest+'/12');
+  if(state.tfBest>=0) best.push('Speed '+state.tfBest+'/10');
+  document.getElementById('statGames').textContent= best.length? best.join(' · ') : 'No scores yet';
+  document.getElementById('statBadges').textContent=badgesEarned()+'/5 earned';
+  renderChrome();
+}
+function countVisited(){ return PLANET_IDS.filter(id=>state.visited.indexOf(id)>=0).length; }
+
+/* ---------- Solar ---------- */
+let currentBody='sun';
+function renderSolar(){
+  const first=PLANETS.find(x=>x.id===currentBody);
+  const isNewVisit=!first.star && state.visited.indexOf(first.id)<0;
+  if(isNewVisit){
+    state.visited.push(first.id); save();
+    toast('📡 Mission logged: '+first.name+'!');
+    sfx('log');
+  }
+  document.getElementById('solarStat').textContent='(Logged: '+countVisited()+'/8)';
+  const rail=document.getElementById('rail');
+  rail.innerHTML=PLANETS.map(p=>{
+    const sel=p.id===currentBody?' sel':'';
+    const done=!p.star&&state.visited.indexOf(p.id)>=0;
+    return '<button class="rail-item'+sel+'" data-planet="'+p.id+'">'+
+      '<div class="mini" style="background:'+p.grad+'"></div>'+
+      '<div class="nm">'+p.name+(p.star?' ★':'')+'</div>'+
+      '<span class="done">'+(done?'✓ logged':'')+'</span></button>';
+  }).join('');
+  const p=PLANETS.find(x=>x.id===currentBody);
+  const visited=!p.star&&state.visited.indexOf(p.id)>=0;
+  document.getElementById('detail').innerHTML=
+    '<div><div class="ball" style="background:'+p.grad+'">'+
+      (p.ring?'<div class="ring"></div>':'')+(p.spot?'<div class="spot"></div>':'')+
+    '</div></div>'+
+    '<div><p class="tag">'+p.tag+'</p><h3 style="font-size:24px;">'+p.name+(p.star?' (a star!)':'')+'</h3>'+
+    '<ul class="facts">'+p.facts.map(f=>'<li>'+f+'</li>').join('')+'</ul>'+
+    (visited?'<span class="logged">✅ Mission logged — great exploring!</span>':'')+
+    (p.star?'<span class="logged">🔥 No landing allowed — it is a star!</span>':'')+
+    '</div>';
+  if(isNewVisit) checkBadges();
+}
+
+/* ---------- Quiz ---------- */
+let quizState=null;
+function prep(list){
+  return shuffle(list).map(item=>{
+    const idx=shuffle(item.opts.map((_,i)=>i));
+    return { q:item.q, opts:idx.map(i=>item.opts[i]), a:idx.indexOf(item.a), why:item.why };
+  });
+}
+function startQuiz(){ quizState={ list:prep(QUESTIONS), i:0, score:0, answered:false }; go('quiz'); }
+function renderQuiz(){
+  const el=document.getElementById('quizBody');
+  if(!quizState){ el.innerHTML=''; return; }
+  const L=quizState.list;
+  if(quizState.i>=L.length){
+    const s=quizState.score;
+    if(s>state.quizBest){ state.quizBest=s; save(); }
+    let msg;
+    if(s===L.length) msg='PERFECT SCORE! NASA is calling you! 🌟';
+    else if(s>=10) msg='Mission accomplished — you earned the Quiz Commander badge!';
+    else if(s>=7) msg='Great flying, Cadet! Review the planets and fly again.';
+    else msg='Keep training, Cadet — every astronaut starts somewhere!';
+    el.innerHTML='<p class="qmeta">Final score</p><div class="scorebig">'+s+' / '+L.length+'</div>'+
+      '<p style="margin:10px 0 18px;">'+msg+'</p>'+
+      '<button class="btn btn-red" data-act="quiz-retry">Play again 🔁</button> '+
+      '<button class="btn ghost" data-go="games">Back to games</button>';
+    checkBadges(); renderGames();
+    return;
+  }
+  const q=L[quizState.i];
+  quizState.answered=false;
+  el.innerHTML='<div class="qmeta">Question '+(quizState.i+1)+' of '+L.length+' · Score: '+quizState.score+'</div>'+
+    '<div class="qtext">'+q.q+'</div>'+
+    '<div class="opts">'+q.opts.map((o,i)=>'<button class="opt" data-opt="'+i+'">'+o+'</button>').join('')+'</div>'+
+    '<div class="feedback hidden" id="feedback"></div>';
+}
+
+/* ---------- True/False ---------- */
+let tfState=null;
+function startSpeed(){ tfState={ list:shuffle(TF), i:0, score:0, answered:false }; go('speed'); }
+function renderSpeed(){
+  const el=document.getElementById('tfBody');
+  if(!tfState){ el.innerHTML=''; return; }
+  const L=tfState.list;
+  if(tfState.i>=L.length){
+    const s=tfState.score;
+    if(s>state.tfBest){ state.tfBest=s; save(); }
+    let msg;
+    if(s===L.length) msg='FLAWLESS! The whole galaxy heard that! 🌌';
+    else if(s>=8) msg='Mission accomplished — you earned the Speed Ace badge!';
+    else if(s>=5) msg='Sharp reflexes, Cadet! One more training run and you have got it.';
+    else msg='Every commander misses a few. Study the planets and try again!';
+    el.innerHTML='<p class="qmeta">Final score</p><div class="scorebig">'+s+' / '+L.length+'</div>'+
+      '<p style="margin:10px 0 18px;">'+msg+'</p>'+
+      '<button class="btn btn-red" data-act="speed-retry">Play again 🔁</button> '+
+      '<button class="btn ghost" data-go="games">Back to games</button>';
+    checkBadges(); renderGames();
+    return;
+  }
+  const item=L[tfState.i];
+  tfState.answered=false;
+  el.innerHTML='<div class="qmeta">Statement '+(tfState.i+1)+' of '+L.length+' · Score: '+tfState.score+'</div>'+
+    '<div class="qtext">“'+item.s+'”</div>'+
+    '<div class="tfrow">'+
+      '<button class="tfbtn" data-tf="true">👍 TRUE!</button>'+
+      '<button class="tfbtn" data-tf="false">👎 FALSE!</button>'+
+    '</div>'+
+    '<div class="feedback hidden" id="tfFeedback"></div>';
+}
+
+/* ---------- Games hub ---------- */
+function renderGames(){
+  document.getElementById('statQuiz').textContent='Best: '+(state.quizBest>=0? state.quizBest+'/12':'—');
+  document.getElementById('statSpeed').textContent='Best: '+(state.tfBest>=0? state.tfBest+'/10':'—');
+}
+
+/* ---------- Badges ---------- */
+function renderBadges(){
+  const grid=document.getElementById('badgeGrid');
+  grid.innerHTML=BADGES.map(b=>{
+    const earned=!!state.badges[b.id];
+    return '<div class="panel badge-card'+(earned?' earned':'')+'">'+
+      '<div class="bic">'+b.icon+'</div><h3>'+b.name+'</h3><p>'+b.how+'</p>'+
+      '<span class="st '+(earned?'on':'off')+'">'+(earned?'EARNED ✓':'LOCKED 🔒')+'</span></div>';
+  }).join('');
+}
+
+function checkBadges(){
+  const conds={
+    cadet: ()=> state.name.trim().length>0,
+    explorer: ()=> PLANET_IDS.every(id=>state.visited.indexOf(id)>=0),
+    quiz: ()=> state.quizBest>=10,
+    speed: ()=> state.tfBest>=8,
+    commander: ()=> ['cadet','explorer','quiz','speed'].every(b=>state.badges[b])
+  };
+  const newly=[];
+  BADGES.forEach(b=>{
+    if(!state.badges[b.id] && conds[b.id]()){ state.badges[b.id]=true; newly.push(b); }
+  });
+  if(newly.length){
+    save(); badgeQueue=newly.slice(); showNextBadge(); sfx('badge');
+    renderChrome();
+  }
+}
+let badgeQueue=[];
+function showNextBadge(){
+  const modal=document.getElementById('badgeModal');
+  if(!badgeQueue.length){ modal.classList.add('hidden'); return; }
+  const b=badgeQueue[0];
+  document.getElementById('bmIcon').textContent=b.icon;
+  document.getElementById('bmName').textContent=b.name;
+  document.getElementById('bmHow').textContent=b.how;
+  modal.classList.remove('hidden');
+}
+
+/* ---------- Stars ---------- */
+function initStars(){
+  const box=document.getElementById('stars');
+  let html='';
+  for(let i=0;i<140;i++){
+    const x=Math.random()*100, y=Math.random()*100, s=Math.random()<.85?1:2;
+    const o=(.3+Math.random()*.7).toFixed(2);
+    html+='<span class="star'+(Math.random()<.3?' tw':'')+'" style="left:'+x+'%;top:'+y+'%;width:'+s+
+      'px;height:'+s+'px;opacity:'+o+';animation-delay:'+(Math.random()*3).toFixed(2)+'s;"></span>';
+  }
+  box.innerHTML=html;
+}
+
+/* ---------- Events ---------- */
+function setName(){
+  const inp=document.getElementById('nameInput');
+  const v=inp.value.trim();
+  if(!v){ toast('🚀 Every astronaut needs a call sign!'); inp.focus(); return; }
+  state.name=v; save(); renderHome(); checkBadges();
+  toast('Welcome aboard, '+v+'! 🚀');
+}
+function resetAll(){
+  if(confirm('Reset ALL progress? Your badges, scores and logged planets will be cleared.')){
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    Object.assign(state,{ name:'', visited:[], quizBest:-1, tfBest:-1, badges:{}, sound:state.sound });
+    quizState=null; tfState=null;
+    renderChrome(); renderBadges(); toast('Fresh mission, Cadet! 🧹');
+  }
+}
+
+function init(){
+  load(); initStars();
+  document.getElementById('funfact').textContent='💡 Did you know? '+FACTS[factIdx];
+  setInterval(rotateFact, 7000);
+
+  document.getElementById('startBtn').addEventListener('click', setName);
+  document.getElementById('nameInput').addEventListener('keydown', e=>{ if(e.key==='Enter') setName(); });
+  document.getElementById('editNameBtn').addEventListener('click', ()=>{
+    document.getElementById('nameInput').value=state.name;
+    document.getElementById('signin').classList.remove('hidden');
+    document.getElementById('welcome').classList.add('hidden');
+  });
+  document.getElementById('brandBtn').addEventListener('click', ()=>go('home'));
+  document.getElementById('soundBtn').addEventListener('click', function(){
+    state.sound=!state.sound; save();
+    this.textContent=state.sound?'🔊':'🔇';
+    if(state.sound) sfx('click');
+  });
+  document.getElementById('soundBtn').textContent=state.sound?'🔊':'🔇';
+
+  document.getElementById('resetBtn').addEventListener('click', resetAll);
+  document.getElementById('bmOk').addEventListener('click', ()=>{
+    badgeQueue.shift(); showNextBadge();
+  });
+
+  // Delegated clicks
+  document.body.addEventListener('click', function(e){
+    const g=e.target.closest('[data-go]');
+    if(g){ sfx('click'); go(g.getAttribute('data-go')); return; }
+    const a=e.target.closest('[data-act]');
+    if(a){
+      sfx('click');
+      const act=a.getAttribute('data-act');
+      if(act==='start-quiz'||act==='quiz-retry') startQuiz();
+      if(act==='start-speed'||act==='speed-retry') startSpeed();
+      if(act==='quiz-next' && quizState){ quizState.i++; renderQuiz(); return; }
+      if(act==='speed-next' && tfState){ tfState.i++; renderSpeed(); return; }
+      return;
+    }
+    const p=e.target.closest('[data-planet]');
+    if(p){ currentBody=p.getAttribute('data-planet'); renderSolar(); return; }
+
+    const opt=e.target.closest('#quizBody .opt');
+    if(opt && quizState && !quizState.answered && quizState.i<quizState.list.length){
+      quizState.answered=true;
+      const q=quizState.list[quizState.i];
+      const pick=+opt.getAttribute('data-opt');
+      document.querySelectorAll('#quizBody .opt').forEach(b=>{
+        b.disabled=true;
+        if(+b.getAttribute('data-opt')===q.a) b.classList.add('correct');
+      });
+      const ok=pick===q.a;
+      if(!ok) opt.classList.add('wrong');
+      if(ok) quizState.score++;
+      sfx(ok?'correct':'wrong');
+      const fb=document.getElementById('feedback');
+      fb.classList.remove('hidden');
+      fb.innerHTML='<p class="'+(ok?'good':'bad')+'">'+(ok?'✅ Correct!':'❌ The answer was: '+q.opts[q.a])+'</p>'+
+        '<p class="why">'+q.why+'</p>'+
+        '<button class="btn btn-red" data-act="quiz-next">'+(quizState.i+1<quizState.list.length?'Next question ▶':'See my score 🏁')+'</button>';
+      return;
+    }
+
+    const tf=e.target.closest('#tfBody .tfbtn');
+    if(tf && tfState && !tfState.answered && tfState.i<tfState.list.length){
+      tfState.answered=true;
+      const item=tfState.list[tfState.i];
+      const pick=tf.getAttribute('data-tf')==='true';
+      document.querySelectorAll('#tfBody .tfbtn').forEach(b=>{
+        b.disabled=true;
+        if(b.getAttribute('data-tf')===String(item.a)) b.classList.add('correct');
+      });
+      const ok=pick===item.a;
+      if(!ok) tf.classList.add('wrong');
+      if(ok) tfState.score++;
+      sfx(ok?'correct':'wrong');
+      const fb=document.getElementById('tfFeedback');
+      fb.classList.remove('hidden');
+      fb.innerHTML='<p class="'+(ok?'good':'bad')+'">'+(ok?'✅ You got it!':'❌ Actually it is '+(item.a?'TRUE':'FALSE')+'!')+'</p>'+
+        '<p class="why">'+item.why+'</p>'+
+        '<button class="btn btn-red" data-act="speed-next">'+(tfState.i+1<tfState.list.length?'Next statement ▶':'See my score 🏁')+'</button>';
+      return;
+    }
+  });
+
+  renderChrome(); renderHome();
+}
+init();
+</script>
+</body>
+</html>
